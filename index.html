@@ -1,9 +1,16 @@
 <!DOCTYPE html>
 <main>
 
-<label>
-  Focal length (mm): 
-  <input type="range" min=1 max=600 />o
+<label id="focal">
+  Focal length: 
+  <input type="range" min=1 max=600 />
+  <span class="output"></span>mm
 </label>  
+<label id="aperture">
+  Aperture: 
+  <input type="range" min=-1 max=600 />
+  <span class="output"></span>mm
+</label>  
+
 </main>
 <script src="script.js" type="module"></script>
