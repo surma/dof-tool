@@ -7,12 +7,10 @@ function myRound(v) {
   return Math.floor(v);
 }
 
-function textContentSink(el) {
-  return new WritableStream({
-    write(v) {
-      el.textContent = v;
-    }
-  })
+function setTextContent(el) {
+  return v => {
+    el.textContent = v;
+  };
 }
 
 export function fromInput(el) {
@@ -22,9 +20,14 @@ export function fromInput(el) {
   return observable;
 }
 
-fromInput(document.querySelector("#aperture input"))
-  .pipeThrough(owp.map(v => (myRound(Math.sqrt(2 ** (v/3)) * 10)/10).toFixed(1)))
-  .pipeTo(textContentSink(document.querySelector("#aperture .output")))
+owp.combineLatest(
+  fromInput(document.querySelector("#aperture input"))
+    .pipeThrough(owp.map(v => (myRound(Math.sqrt(2 ** (v/3)) * 10)/10).toFixed(1)))
+    .pipeThrough(owp.forEach(setTextContent(document.querySelector("#aperture .output")))),
 
-fromInput(document.querySelector("#focal input"))
-  .pipeTo(textContentSink(document.querySelector("#focal .output")))
+  fromInput(document.querySelector("#focal input"))
+    .pipeThrough(owp.forEach(setTextContent(document.querySelector("#focal .output"))))
+)
+  .pipeThrough(owp.map(([aperture, focal]) => (focal * focal / (aperture * 0.03) + focal)/1000))
+  .pipeThrough(owp.forEach(setTextContent(document.querySelector("#hyperfocal .output"))))
+  .pipeTo(owp.discard());
