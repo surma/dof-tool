@@ -1,5 +1,2 @@
-/* If you're feeling fancy you can add interactivity 
-    to your site with Javascript */
+import * as owp from "https://cdn.jsdelivr.net/npm/owp@0.1.2/dist/index.js";
 
-// prints "hi" in the browser's dev tools console
-console.log("hi");
