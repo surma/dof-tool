@@ -13,6 +13,12 @@ function setTextContent(el, f = x => x) {
   };
 }
 
+function setValue(el, f = x => x) {
+  return v => {
+    el.value = f(v);
+  };
+}
+
 export function fromInput(el) {
   const { next, observable } = owp.external();
   el.addEventListener("input", () => next(el.value));
@@ -21,10 +27,16 @@ export function fromInput(el) {
 }
 
 owp.combineLatest(
-  fromInput(document.querySelector("#aperture input"))
-    .pipeThrough(owp.map(v => myRound(Math.sqrt(2 ** (v/3)) * 10)/10)),
-  fromInput(document.querySelector("#focal input"))
-    .pipeThrough(owp.map(v => Number(v))),
+  owp.zip(
+    fromInput(document.querySelector("#aperture input"))
+  )
+      .pipeThrough(owp.map(v => myRound(Math.sqrt(2 ** (v/3)) * 10)/10)),
+  owp.merge(
+    fromInput(document.querySelector("#focal input.slider")),
+    fromInput(document.querySelector("#focal input.field"))
+  )
+    .pipeThrough(owp.map(v => Number(v)))
+    .pipeThrough(owp.forEach(setValue(document.querySelector("#focal input.field")))),
   fromInput(document.querySelector("#distance input"))
     .pipeThrough(owp.forEach(setTextContent(document.querySelector("#distance .output"))))
     .pipeThrough(owp.map(v => v * 1000))
