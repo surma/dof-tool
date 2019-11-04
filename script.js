@@ -73,7 +73,7 @@ owp.combineLatest(
   .pipeThrough(owp.map(data => {
     const {distance, focal, hyperfocal} = data;
     const nearFocusPlane = distance * (hyperfocal - focal) / (hyperfocal + distance - 2*focal);
-    const farFocusPlane = distance * (hyperfocal - focal) / (hyperfocal - focal);
+    const farFocusPlane = distance * (hyperfocal - focal) / (hyperfocal - distance);
     return {...data, farFocusPlane, nearFocusPlane};
   }))
   .pipeThrough(owp.map(data => {
