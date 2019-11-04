@@ -35,38 +35,52 @@ export function fromChange(el) {
 
 
 owp.combineLatest(
+  owp.repeat(0.03), // CoC
   owp.merge(
     fromInput(document.querySelector("#aperture input.slider"))
       .pipeThrough(owp.map(v => myRound(Math.sqrt(2 ** (v/3)) * 10)/10)),
     fromChange(document.querySelector("#aperture input.field"))
       .pipeThrough(owp.map(v => myRound(Math.sqrt(2**(Math.round(Math.log2(v**2)*3)/3))*10)/10))
   )
+    .pipeThrough(owp.forEach(setValue(document.querySelector("#aperture input.slider"))))
     .pipeThrough(owp.forEach(setValue(document.querySelector("#aperture input.field")))),
   owp.merge(
     fromInput(document.querySelector("#focal input.slider")),
     fromChange(document.querySelector("#focal input.field"))
   )
     .pipeThrough(owp.map(v => Number(v)))
+    .pipeThrough(owp.forEach(setValue(document.querySelector("#focal input.slider"))))
     .pipeThrough(owp.forEach(setValue(document.querySelector("#focal input.field")))),
-  fromInput(document.querySelector("#distance input"))
-    .pipeThrough(owp.forEach(setTextContent(document.querySelector("#distance .output"))))
+  owp.merge(
+    fromInput(document.querySelector("#distance input.slider")),
+    fromChange(document.querySelector("#distance input.field"))
+  )
+    .pipeThrough(owp.forEach(setValue(document.querySelector("#distance input.slider"))))
+    .pipeThrough(owp.forEach(setValue(document.querySelector("#distance input.field"))))
     .pipeThrough(owp.map(v => v * 1000))
-
 )
-  .pipeThrough(owp.map(([aperture, focal, distance]) => ({aperture, focal, distance})))
+  .pipeThrough(owp.map(([coc, aperture, focal, distance]) => ({coc, aperture, focal, distance})))
   .pipeThrough(owp.map(data => {
-    const {aperture, focal} = data;
-    const hyperfocal = (focal * focal / (aperture * 0.03) + focal)/1000;
+    const {aperture, focal, coc} = data;
+    const hyperfocal = (focal**2 / (aperture * coc) + focal)/1000;
     return {...data, hyperfocal};
   }))
   .pipeThrough(owp.map(data => {
-    const {distance, focal, aperture} = data;
-    const dof = 2 * distance * distance * aperture * 0.03 / (focal * focal) / 1000;
-    return {...data, dof};
+    const {distance, focal, hyperfocal} = data;
+    const nearFocusPlane = distance * (hyperfocal - focal) / (hyperfocal + distance - 2* focal);
+    return {...data, nearFocusPlane};
+  }))
+  .pipeThrough(owp.map(data => {
+    const {distance, focal, hyperfocal} = data;
+    const farFocusPlane = distance * (hyperfocal - focal) / (hyperfocal - focal);
+    return {...data, farFocusPlane};
+  }))
+  .pipeThrough(owp.map(data => {
+    const {distance, nearFocusPlane, f } = data;
+    const farFocusPlane = distance * (hyperfocal - focal) / (hyperfocal - focal);
+    return {...data, farFocusPlane};
   }))
   .pipeThrough(owp.forEach(setTextContent(document.querySelector("#hyperfocal .output"), ({hyperfocal}) => hyperfocal.toFixed(1))))
-  // .pipeThrough(owp.forEach(setTextContent(document.querySelector("#aperture .output"), ({aperture}) => aperture.toFixed(1))))
-  // .pipeThrough(owp.forEach(setTextContent(document.querySelector("#focal .output"), ({focal}) => focal.toFixed(0))))
   .pipeThrough(owp.forEach(setTextContent(document.querySelector("#dof .output"), ({dof}) => dof.toFixed(2))))
   .pipeTo(owp.discard());
 
