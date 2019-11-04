@@ -33,9 +33,6 @@ export function fromChange(el) {
   return observable;
 }
 
-const canvas = document.querySelector("#out");
-const ctx = canvas.getContext("2d");
-
 owp.combineLatest(
   owp.just(0.03), // CoC
   owp.merge(
@@ -84,10 +81,7 @@ owp.combineLatest(
     return {...data, dofNear, dofFar, totalDof};
   }))
   // .pipeThrough(owp.forEach(setTextContent(document.querySelector("#hyperfocal .output"), ({hyperfocal}) => hyperfocal.toFixed(1))))
-  // .pipeThrough(owp.forEach(data => {
-  //   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  //   console.log(data);
-  // }))
-  .pipeThrough(owp.forEach(v => console.log(new Date().getTime(), v)))
+  .pipeThrough(owp.forEach(setTextContent(document.querySelector("#output #totalDof tspan"), data => `${(data.totalDof / 1000).toFixed(1)}mm`)))
+  // .pipeThrough(owp.forEach(v => console.log(new Date().getTime(), v)))
   .pipeTo(owp.discard());
 
