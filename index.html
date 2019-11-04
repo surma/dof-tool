@@ -13,16 +13,16 @@
   </label>  
   <label id="aperture">
     Aperture: 
-    <input type="range" min=-1 max=30 value=9 />
-    f/<span class="output"></span>
+    <input type="range" class="slider" min=-1 max=30 value=9 />
+    f/<input type="number" class="field" min=0 max=32 value=2.8 />mm
   </label>  
   <label id="hyperfocal">
     Hyperfocal distance: <span class="output"></span>m
   </label>
   <label id="distance">
     Distance to subject: 
-    <input type="range" min=0 max=100 value=1 step=.01 />
-    <span class="output"></span>m
+    <input type="range" class="slider" min=0 max=100 value=1 step=.01 />
+    <input type="number" class="field" min=0 max=100 value=2.8 />mm
   </label>  
   <label id="dof">
     Depth of field: 

@@ -26,14 +26,25 @@ export function fromInput(el) {
   return observable;
 }
 
+export function fromChange(el) {
+  const { next, observable } = owp.external();
+  el.addEventListener("change", () => next(el.value));
+  next(el.value);
+  return observable;
+}
+
+
 owp.combineLatest(
-  owp.zip(
-    fromInput(document.querySelector("#aperture input"))
-  )
+  owp.merge(
+    fromInput(document.querySelector("#aperture input.slider"))
       .pipeThrough(owp.map(v => myRound(Math.sqrt(2 ** (v/3)) * 10)/10)),
+    fromChange(document.querySelector("#aperture input.field"))
+      .pipeThrough(owp.map(v => myRound(Math.sqrt(2**(Math.round(Math.log2(v**2)*3)/3))*10)/10))
+  )
+    .pipeThrough(owp.forEach(setValue(document.querySelector("#aperture input.field")))),
   owp.merge(
     fromInput(document.querySelector("#focal input.slider")),
-    fromInput(document.querySelector("#focal input.field"))
+    fromChange(document.querySelector("#focal input.field"))
   )
     .pipeThrough(owp.map(v => Number(v)))
     .pipeThrough(owp.forEach(setValue(document.querySelector("#focal input.field")))),
@@ -54,8 +65,8 @@ owp.combineLatest(
     return {...data, dof};
   }))
   .pipeThrough(owp.forEach(setTextContent(document.querySelector("#hyperfocal .output"), ({hyperfocal}) => hyperfocal.toFixed(1))))
-  .pipeThrough(owp.forEach(setTextContent(document.querySelector("#aperture .output"), ({aperture}) => aperture.toFixed(1))))
-  .pipeThrough(owp.forEach(setTextContent(document.querySelector("#focal .output"), ({focal}) => focal.toFixed(0))))
+  // .pipeThrough(owp.forEach(setTextContent(document.querySelector("#aperture .output"), ({aperture}) => aperture.toFixed(1))))
+  // .pipeThrough(owp.forEach(setTextContent(document.querySelector("#focal .output"), ({focal}) => focal.toFixed(0))))
   .pipeThrough(owp.forEach(setTextContent(document.querySelector("#dof .output"), ({dof}) => dof.toFixed(2))))
   .pipeTo(owp.discard());
 
