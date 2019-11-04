@@ -7,7 +7,7 @@ function myRound(v) {
   return Math.floor(v);
 }
 
-function setTextContent(el, f) {
+function setTextContent(el, f = x => x) {
   return v => {
     el.textContent = f(v);
   };
@@ -20,32 +20,30 @@ export function fromInput(el) {
   return observable;
 }
 
-function fork(v, f) {
-  const [s1, s2] = v.tee();
-  f(s1);
-  return s2;
-}
-
-fork(
 owp.combineLatest(
   fromInput(document.querySelector("#aperture input"))
-    .pipeThrough(owp.map(v => myRound(Math.sqrt(2 ** (v/3)) * 10)/10))
-    .pipeThrough(owp.map(v => v.toFixed(1)))
-    .pipeThrough(owp.forEach(setTextContent(document.querySelector("#aperture .output")))),
-
+    .pipeThrough(owp.map(v => myRound(Math.sqrt(2 ** (v/3)) * 10)/10)),
   fromInput(document.querySelector("#focal input"))
-    .pipeThrough(owp.forEach(setTextContent(document.querySelector("#focal .output"))))
+    .pipeThrough(owp.map(v => Number(v))),
+  fromInput(document.querySelector("#distance input"))
+    .pipeThrough(owp.forEach(setTextContent(document.querySelector("#distance .output"))))
+    .pipeThrough(owp.map(v => v * 1000))
+
 )
-  .pipeThrough(owp.map(([aperture, focal]) => ({aperture, focal})))
-  .pipeThrough(owp.map(({aperture, focal}) => ({aperture, focal, hyperfocal: ((focal * focal / (aperture * 0.03) + focal)/1000).toFixed(1)})))
-  .pipeThrough(owp.forEach(setTextContent(document.querySelector("#hyperfocal .output"), ({hyperfocal}) => hyperfocal)))
-  .pipeThrough(owp.combineLatestWith(
-    fromInput(document.querySelector("#distance input"))
-      .pipeThrough(owp.forEach(setTextContent(document.querySelector("#distance .output"))))
-  ))
-  // .pipeThrough(owp.forEach(v => console.log(v)))
-  // .pipeThrough(owp.map(([[a, b], c]) => [a, b, c]))
-  // .pipeThrough(owp.map(([aperture, focal, distance]) => 2 * distance * distance * aperture * 0.03 / (focal * focal) / 1000))
-  // .pipeThrough(owp.forEach(setTextContent(document.querySelector("#dof .output"))))
+  .pipeThrough(owp.map(([aperture, focal, distance]) => ({aperture, focal, distance})))
+  .pipeThrough(owp.map(data => {
+    const {aperture, focal} = data;
+    const hyperfocal = (focal * focal / (aperture * 0.03) + focal)/1000;
+    return {...data, hyperfocal};
+  }))
+  .pipeThrough(owp.map(data => {
+    const {distance, focal, aperture} = data;
+    const dof = 2 * distance * distance * aperture * 0.03 / (focal * focal) / 1000;
+    return {...data, dof};
+  }))
+  .pipeThrough(owp.forEach(setTextContent(document.querySelector("#hyperfocal .output"), ({hyperfocal}) => hyperfocal.toFixed(1))))
+  .pipeThrough(owp.forEach(setTextContent(document.querySelector("#aperture .output"), ({aperture}) => aperture.toFixed(1))))
+  .pipeThrough(owp.forEach(setTextContent(document.querySelector("#focal .output"), ({focal}) => focal.toFixed(0))))
+  .pipeThrough(owp.forEach(setTextContent(document.querySelector("#dof .output"), ({dof}) => dof.toFixed(2))))
   .pipeTo(owp.discard());
 
