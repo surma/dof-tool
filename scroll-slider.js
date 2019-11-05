@@ -11,31 +11,42 @@ export default class ScrollSlider extends HTMLElement {
           width: 100%;
           height: 100%;
           overflow: auto;
-          display: grid;
-          grid-template-columns: 50% max-content 50%;
+          scroll-snap-type: x mandatory;
+          display: flex;
         }
         #crosshair {
           position: absolute;
           left: 50%;
           height: 100%;
-          border-left: 1px solid red;
+          transform: translateX(-50%);
+          width: calc(2 * var(--spacing, 3em));
+          border: 1px solid red;
         }
+        .padding {
+          display: inline-block;
+          width: 50%;
+          flex-shrink: 0;
+        }
+        .label {
+          scroll-snap-align: center;
+          padding: 0 var(--spacing, 3em);
+        } 
       </style>
       <div id="crosshair"></div>
       <div id="container">
         <div class="padding"></div>
-        <div id="slider">
-        </div>
         <div class="padding"></div>
       </div>
     `;
     
     this._labelFunction = x => x;
-    this._slider = this.shadowRoot.querySelector("#slider");
+    this._container = this.shadowRoot.querySelector('#container');
+    const lastChild = this._container.querySelector('*:last-of-type');
     for(let i = 0; i < 10; i++) {
       const span = document.createElement("span")
+      span.classList.add('label');
       span.textContent = `${i}`;
-      this._slider.append(span);
+      this._container.insertBefore(span, lastChild);
     }
   }  
   
