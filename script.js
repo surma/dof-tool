@@ -33,6 +33,13 @@ export function fromChange(el) {
   return observable;
 }
 
+function formatDistance(v) {
+  if(v < 0) {
+    return "∞";
+  }
+  return `${(v / 1000).toFixed(2)}m`;
+}
+
 owp.combineLatest(
   owp.just(0.03), // CoC
   owp.merge(
@@ -80,8 +87,13 @@ owp.combineLatest(
     const totalDof = dofNear + dofFar;
     return {...data, dofNear, dofFar, totalDof};
   }))
-  // .pipeThrough(owp.forEach(setTextContent(document.querySelector("#hyperfocal .output"), ({hyperfocal}) => hyperfocal.toFixed(1))))
-  .pipeThrough(owp.forEach(setTextContent(document.querySelector("#output #totalDof tspan"), data => `${(data.totalDof / 1000).toFixed(1)}mm`)))
+  .pipeThrough(owp.forEach(setTextContent(document.querySelector("#hyperfocal .output"), ({hyperfocal}) => formatDistance(hyperfocal))))
+  .pipeThrough(owp.forEach(setTextContent(document.querySelector("#output #totalDof tspan"), ({totalDof}) => formatDistance(totalDof))))
+  .pipeThrough(owp.forEach(setTextContent(document.querySelector("#output #nearFocusPlane tspan"), ({nearFocusPlane}) => formatDistance(nearFocusPlane))))
+  .pipeThrough(owp.forEach(setTextContent(document.querySelector("#output #farFocusPlane tspan"), ({farFocusPlane}) => formatDistance(farFocusPlane))))
+  .pipeThrough(owp.forEach(setTextContent(document.querySelector("#output #dofNear tspan"), ({dofNear}) => formatDistance(dofNear))))
+  .pipeThrough(owp.forEach(setTextContent(document.querySelector("#output #dofFar tspan"), ({dofFar}) => formatDistance(dofFar))))
+  .pipeThrough(owp.forEach(setTextContent(document.querySelector("#output #distance tspan"), ({distance}) => formatDistance(distance))))
   // .pipeThrough(owp.forEach(v => console.log(new Date().getTime(), v)))
   .pipeTo(owp.discard());
 
