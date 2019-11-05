@@ -1,3 +1,4 @@
+import "https://unpkg.com/web-streams-polyfill@2.0.5/dist/polyfill.es2018.mjs";
 import * as owp from "https://cdn.jsdelivr.net/npm/owp@0.1.2/dist/index.js";
 
 function myRound(v) {
