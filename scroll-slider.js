@@ -4,18 +4,29 @@ export default class ScrollSlider extends HTMLElement {
     this.attachShadow({mode: 'open'});
     this.shadowRoot.innerHTML = `
       <style>
+        :host {
+          position: relative;
+        }
         #container {
           width: 100%;
           height: 100%;
-          overflow: hidden;
+          overflow: auto;
+          display: grid;
+          grid-template-columns: 50% max-content 50%;
         }
-        #slider {
-          margin: 0 50%;
+        #crosshair {
+          position: absolute;
+          left: 50%;
+          height: 100%;
+          border-left: 1px solid red;
         }
       </style>
+      <div id="crosshair"></div>
       <div id="container">
+        <div class="padding"></div>
         <div id="slider">
         </div>
+        <div class="padding"></div>
       </div>
     `;
     
