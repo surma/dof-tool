@@ -24,6 +24,7 @@ export default class ScrollSlider extends HTMLElement {
           transform: translateX(-50%);
           width: calc(2 * var(--spacing, 3em));
           border: 1px solid red;
+          pointer-events: none;
         }
         .padding {
           display: inline-block;
