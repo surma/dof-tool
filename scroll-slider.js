@@ -6,6 +6,7 @@ export default class ScrollSlider extends HTMLElement {
       <style>
         :host {
           position: relative;
+          overflow: hidden;
         }
         #container {
           width: 100%;
@@ -13,11 +14,13 @@ export default class ScrollSlider extends HTMLElement {
           overflow: auto;
           scroll-snap-type: x mandatory;
           display: flex;
+          padding-bottom: var(--scrollbar-margin, 20px);
+          margin-bottom: calc(-1 * var(--scrollbar-margin, 20px));
         }
         #crosshair {
           position: absolute;
           left: 50%;
-          height: 100%;
+          height: calc(100% - 2px);
           transform: translateX(-50%);
           width: calc(2 * var(--spacing, 3em));
           border: 1px solid red;
@@ -41,6 +44,12 @@ export default class ScrollSlider extends HTMLElement {
     
     this._labelFunction = x => x;
     this._container = this.shadowRoot.querySelector('#container');
+    this._numItems = 10;
+    this._regenerateLabels();
+  }
+  
+  _regenerateLabels() {
+    this._container.querySelectorAll('*:not(.padding)').forEach(el => el.remove());
     const lastChild = this._container.querySelector('*:last-of-type');
     for(let i = 0; i < 10; i++) {
       const span = document.createElement("span")
