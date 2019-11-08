@@ -44,39 +44,40 @@ function formatDistance(v) {
   return `${(v / 1000).toFixed(2)}m`;
 }
 
-function exposureValue(v) {
+function apertureValue(v) {
   return myRound(Math.sqrt(2 ** (Math.round(v) / 3)) * 10) / 10;
 }
 
-document.querySelector("#aperture scroll-slider").valueFunction = exposureValue;
-document.querySelector("#aperture scroll-slider").labelFunction = v =>
-  `f/${v.toFixed(1)}`;
-document.querySelector("#aperture scroll-slider").numItems = 31;
+const aperture = document.querySelector("#aperture scroll-slider");
+aperture.valueFunction = apertureValue;
+aperture.labelFunction = v => `f/${v.toFixed(1)}`;
+aperture.numItems = 31;
+aperture.value = 2.8;
 
-document.querySelector("#focal scroll-slider").valueFunction = v =>
-  7 + 192 ** (v / 9);
-document.querySelector("#focal scroll-slider").labelFunction = v =>
-  `${v.toFixed(0)}mm`;
-document.querySelector("#focal scroll-slider").numItems = 10;
-document.querySelector("#focal scroll-slider").style = "--spacing: 5em";
+const focal = document.querySelector("#focal scroll-slider");
+focal.valueFunction = v => 7 + 192 ** (v / 9);
+focal.labelFunction = v => `${v.toFixed(0)}mm`;
+focal.numItems = 10;
+focal.style = "--spacing: 5em";
+focal.value = 50;
 
-document.querySelector("#distance scroll-slider").valueFunction = v =>
-  100 ** (v / 9);
-document.querySelector("#distance scroll-slider").labelFunction = v =>
-  `${v.toFixed(0)}m`;
-document.querySelector("#distance scroll-slider").numItems = 10;
-document.querySelector("#distance scroll-slider").style = "--spacing: 5em";
+const distance = document.querySelector("#distance scroll-slider");
+distance.valueFunction = v => 100 ** (v / 9);
+distance.labelFunction = v => `${v.toFixed(0)}m`;
+distance.numItems = 10;
+distance.style = "--spacing: 5em";
+distance.value = 5;
 
 owp
   .combineLatest(
     owp.just(0.03), // CoC
-    fromInput(document.querySelector("#aperture .slider"))
-      .pipeThrough(owp.map(v => exposureValue(v)))
+    fromInput(aperture)
+      .pipeThrough(owp.map(v => apertureValue(v)))
       .pipeThrough(owp.distinct()),
-    fromInput(document.querySelector("#focal .slider"))
+    fromInput(focal)
       .pipeThrough(owp.map(v => Number(v)))
       .pipeThrough(owp.distinct()),
-    fromInput(document.querySelector("#distance .slider"))
+    fromInput(distance)
       .pipeThrough(owp.distinct())
       .pipeThrough(owp.map(v => v * 1000))
   )
