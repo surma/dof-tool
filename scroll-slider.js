@@ -9,6 +9,7 @@ export default class ScrollSlider extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         :host {
+          display: block;
           position: relative;
           overflow: hidden;
         }
@@ -17,8 +18,6 @@ export default class ScrollSlider extends HTMLElement {
           height: 100%;
           overflow: auto;
           display: flex;
-          /* padding-bottom: var(--scrollbar-margin, 20px); */
-          /* margin-bottom: calc(-1 * var(--scrollbar-margin, 20px));*/
         }
         .snap {
           scroll-snap-type: x mandatory;
@@ -27,8 +26,6 @@ export default class ScrollSlider extends HTMLElement {
           position: absolute;
           left: 50%;
           height: calc(100% - 2px);
-          //transform: translateX(-50%);
-          //width: var(--spacing, 3em);
           border-left: 1px solid red;
           pointer-events: none;
         }
@@ -44,7 +41,6 @@ export default class ScrollSlider extends HTMLElement {
           justify-content: center;
           width: var(--spacing, 3em);
           flex-shrink: 0;
-          //transform: translateX(-50%);
         } 
         .label:first-of-type {
           margin-left: calc(-.5 * var(--spacing, 3em));
@@ -61,6 +57,7 @@ export default class ScrollSlider extends HTMLElement {
     `;
 
     this._valueFunction = x => x;
+    this._labelFunction = x => x;
     this._container = this.shadowRoot.querySelector("#container");
     this._regenerateLabels();
     this._processNumItemsAttribute();
@@ -92,12 +89,43 @@ export default class ScrollSlider extends HTMLElement {
   set numItems(value) {
     this._numItems = value;
     this._regenerateLabels();
-    this._onScroll();
+    this._dispatchInputEvent();
   }
 
   set valueFunction(f) {
     this._valueFunction = f;
     this._regenerateLabels();
+  }
+
+  set labelFunction(f) {
+    this._labelFunction = f;
+    this._regenerateLabels();
+  }
+
+  _valueForScrollPos(pos) {
+    const offset =
+      (pos / (this._container.scrollWidth - this._container.clientWidth)) *
+      (this._numItems - 1);
+    return this._valueFunction(offset);
+  }
+
+  get value() {
+    return this._valueForScrollPos(this._container.scrollLeft);
+  }
+
+  set value(target) {
+    const max = this._container.scrollWidth - this._container.clientWidth;
+    let current = max / 2;
+    let delta = max / 4;
+    while (delta > 1) {
+      if (this._valueForScrollPos(current) > target) {
+        current -= delta;
+      } else {
+        current += delta;
+      }
+      delta = Math.floor(delta / 2);
+    }
+    this._container.scrollTo({ left: current });
   }
 
   _processSnapAttribute() {
@@ -120,17 +148,16 @@ export default class ScrollSlider extends HTMLElement {
     for (let i = 0; i < this.numItems; i++) {
       const span = document.createElement("span");
       span.classList.add("label");
-      span.textContent = `${this._valueFunction(i)}`;
+      span.textContent = `${this._labelFunction(this._valueFunction(i))}`;
       this._container.insertBefore(span, lastChild);
     }
   }
 
   _onScroll() {
-    const offset =
-      (this._container.scrollLeft /
-        (this._container.scrollWidth - this._container.clientWidth)) *
-      (this._numItems - 1);
-    const value = this._valueFunction(offset);
-    console.log(value);
+    this._dispatchInputEvent();
+  }
+
+  _dispatchInputEvent() {
+    this.dispatchEvent(new InputEvent("input"));
   }
 }
