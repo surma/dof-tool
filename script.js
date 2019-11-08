@@ -76,7 +76,15 @@ owp
       .pipeThrough(owp.distinct()),
     fromInput(focal)
       .pipeThrough(owp.map(v => Number(v)))
-      .pipeThrough(owp.distinct()),
+      .pipeThrough(owp.distinct())
+      .pipeThrough(
+        owp.forEach(
+          setTextContent(
+            document.querySelector("#focalout .output"),
+            v => `${v.toFixed(0)}mm`
+          )
+        )
+      ),
     fromInput(distance)
       .pipeThrough(owp.distinct())
       .pipeThrough(owp.map(v => v * 1000))

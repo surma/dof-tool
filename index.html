@@ -1,30 +1,40 @@
 <!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
+  :root {
+    --black: #222;
+    --white: #ddd;
+    --foreground: var(--white);
+    --background: var(--black);
+  }
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: Arial;
+    font-size: 24px;
+    height: 100%;
+  }
   main {
+    min-height: 100%;
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     max-width: 960px;
     margin: 0 auto;
   }
+  svg {
+    stroke: var(--foreground);
+    fill: var(--foreground);
+  }
+  svg tspan,
+  svg path {
+    stroke: none;
+  }
 </style>
 <main>
-  <label id="focal">
-    Focal length:
-    <scroll-slider class="slider"></scroll-slider>
-  </label>
-  <label id="aperture">
-    Aperture:
-    <scroll-slider class="slider" snap></scroll-slider>
-  </label>
-  <label id="hyperfocal">
-    Hyperfocal distance: <span class="output"></span>
-  </label>
-  <label id="distance">
-    Distance to subject:
-    <scroll-slider class="slider"></scroll-slider>
-  </label>
-
   <svg
     id="output"
     viewBox="0 0 1345 848"
@@ -35,17 +45,10 @@
     <!-- Generator: Sketch 59.1 (86144) - https://sketch.com -->
     <title>Artboard</title>
     <desc>Created with Sketch.</desc>
-    <g
-      id="Artboard"
-      stroke="none"
-      stroke-width="1"
-      fill="none"
-      fill-rule="evenodd"
-    >
+    <g stroke-width="1" fill-rule="evenodd">
       <g
         id="video-camera"
         transform="translate(9.000000, 308.000000)"
-        fill="#000000"
         fill-rule="nonzero"
       >
         <path
@@ -70,7 +73,6 @@
       <g
         id="tree"
         transform="translate(938.000000, 189.000000)"
-        fill="#000000"
         fill-rule="nonzero"
       >
         <path
@@ -84,7 +86,6 @@
         x2="883.25"
         y2="170.720566"
         id="Line"
-        stroke="#000000"
         stroke-width="5"
         stroke-linecap="square"
         stroke-dasharray="27,21"
@@ -95,7 +96,6 @@
         x2="1321.25"
         y2="170.75"
         id="Line-Copy-2"
-        stroke="#000000"
         stroke-width="5"
         stroke-linecap="square"
         stroke-dasharray="27,21"
@@ -106,43 +106,36 @@
         x2="9.5"
         y2="571.5"
         id="Line-Copy"
-        stroke="#000000"
         stroke-width="9"
       ></line>
       <path
         id="Line-Copy-3"
         d="M885.493111,99.4989148 L885.506889,118.49891 L882.506889,118.501085 L882.501,110.5 L196.001,110.999 L196.006889,118.99891 L193.006889,119.001085 L192.993111,100.00109 L195.993111,99.9989148 L195.998,107.999 L882.498,107.5 L882.493111,99.5010902 L885.493111,99.4989148 Z"
-        fill="#000000"
         fill-rule="nonzero"
       ></path>
       <path
         id="Line-Copy-5"
         d="M1105.49739,676.499588 L1105.50261,695.499587 L1102.50261,695.500412 L1102.5,687.5 L196.25,687.749 L196.252612,695.749587 L193.252612,695.750412 L193.247388,676.750413 L196.247388,676.749588 L196.249,684.749 L1102.499,684.5 L1102.49739,676.500413 L1105.49739,676.499588 Z"
-        fill="#000000"
         fill-rule="nonzero"
       ></path>
       <path
         id="Line-Copy-6"
         d="M1106.48389,743.49747 L1106.51611,762.497443 L1103.51611,762.50253 L1103.502,754.502 L885.377,754.872 L885.391109,762.872443 L882.391113,762.87753 L882.358891,743.877557 L885.358887,743.87247 L885.372,751.872 L1103.497,751.502 L1103.48389,743.502557 L1106.48389,743.49747 Z"
-        fill="#000000"
         fill-rule="nonzero"
       ></path>
       <path
         id="Line-Copy-7"
         d="M1104.37775,743.874566 L1107.37775,743.875435 L1107.375,751.875 L1320.062,751.936 L1320.06525,743.937066 L1323.06525,743.937935 L1323.06293,751.937935 L1323.06207,754.937935 L1323.05975,762.937934 L1320.05975,762.937065 L1320.062,754.936 L1107.374,754.875 L1107.37225,762.875434 L1104.37225,762.874565 L1104.37775,743.874566 Z"
-        fill="#000000"
         fill-rule="nonzero"
       ></path>
       <path
         id="Line-Copy-8"
         d="M1323.0625,823.9375 L1320.0625,823.9375 L1320.062,815.937 L885.062,815.937 L885.0625,823.9375 L882.0625,823.9375 L882.0625,804.9375 L885.0625,804.9375 L885.062,812.937 L1320.062,812.937 L1320.0625,804.9375 L1323.0625,804.9375 L1323.0625,823.9375 Z"
-        fill="#000000"
         fill-rule="nonzero"
       ></path>
       <path
         id="Line-Copy-4"
         d="M1323.24789,33.7496676 L1323.25211,52.7496671 L1320.25211,52.7503324 L1320.25,44.75 L196,44.999 L196.002107,52.9996671 L193.002107,53.0003324 L192.997893,34.0003329 L195.997893,33.9996676 L195.999,41.999 L1320.249,41.75 L1320.24789,33.7503329 L1323.24789,33.7496676 Z"
-        fill="#000000"
         fill-rule="nonzero"
       ></path>
       <text
@@ -150,7 +143,6 @@
         font-family="ArialMT, Arial"
         font-size="24"
         font-weight="normal"
-        fill="#000000"
       >
         <tspan x="512.322266" y="95">0.0m</tspan>
       </text>
@@ -159,7 +151,6 @@
         font-family="ArialMT, Arial"
         font-size="24"
         font-weight="normal"
-        fill="#000000"
       >
         <tspan x="731.322266" y="29">0.0m</tspan>
       </text>
@@ -168,7 +159,6 @@
         font-family="ArialMT, Arial"
         font-size="24"
         font-weight="normal"
-        fill="#000000"
       >
         <tspan x="622.322266" y="672">0.0m</tspan>
       </text>
@@ -177,7 +167,6 @@
         font-family="ArialMT, Arial"
         font-size="24"
         font-weight="normal"
-        fill="#000000"
       >
         <tspan x="967.322266" y="739">0.0m</tspan>
       </text>
@@ -186,7 +175,6 @@
         font-family="ArialMT, Arial"
         font-size="24"
         font-weight="normal"
-        fill="#000000"
       >
         <tspan x="1187.32227" y="744">0.0m</tspan>
       </text>
@@ -195,11 +183,23 @@
         font-family="ArialMT, Arial"
         font-size="24"
         font-weight="normal"
-        fill="#000000"
       >
         <tspan x="1075.32227" y="800">0.0m</tspan>
       </text>
     </g>
   </svg>
+  <section>
+    <div id="focalout">Focal length: <span class="output"></span></div>
+    <div id="hyperfocal">Hyperfocal distance: <span class="output"></span></div>
+    <label id="focal">
+      <scroll-slider class="slider"></scroll-slider>
+    </label>
+    <label id="aperture">
+      <scroll-slider class="slider" snap></scroll-slider>
+    </label>
+    <label id="distance">
+      <scroll-slider class="slider"></scroll-slider>
+    </label>
+  </section>
 </main>
 <script src="script.js" type="module"></script>
