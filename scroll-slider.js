@@ -12,10 +12,20 @@ export default class ScrollSlider extends HTMLElement {
           display: block;
           position: relative;
           overflow: hidden;
+          width: auto;
+          height: 3em;
         }
-        #container {
+        #wrapper {
+          position: relative;
           width: 100%;
           height: 100%;
+        }
+        #container {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: calc(-1 * var(--scrollbar-margin, 20px));
           overflow: auto;
           display: flex;
         }
