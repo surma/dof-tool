@@ -1,0 +1,20 @@
+{
+  "name": "dof-tool",
+  "version": "0.0.1",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://api.glitch.com/git/dof-tool"
+  },
+  "keywords": [],
+  "author": "Surma <surma@surma.link>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "owp": "^0.1.2",
+    "web-streams-polyfill": "^2.0.5"
+  }
+}
