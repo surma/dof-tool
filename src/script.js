@@ -1,5 +1,5 @@
-import "./node_modules/web-streams-polyfill/dist/polyfill.es2018.mjs";
-import * as owp from "./node_modules/owp/dist/index.js";
+import "web-streams-polyfill/dist/polyfill.es2018.mjs";
+import * as owp from "owp/dist/index.js";
 import ScrollSlider from "./scroll-slider.js";
 
 customElements.define("scroll-slider", ScrollSlider);
