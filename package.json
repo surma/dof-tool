@@ -14,6 +14,7 @@
   "author": "Surma <surma@surma.link>",
   "license": "Apache-2.0",
   "dependencies": {
+    "html-minifier": "^4.0.0",
     "owp": "^0.1.2",
     "rollup": "^1.27.0",
     "rollup-plugin-node-resolve": "^5.2.0",
