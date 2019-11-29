@@ -4,7 +4,8 @@
   "description": "",
   "main": "script.js",
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "fmt": "prettier --write ./src/**/*.{html,js} ./*.{json,js}"
   },
   "repository": {
     "type": "git",
@@ -20,5 +21,8 @@
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-terser": "^5.1.2",
     "web-streams-polyfill": "^2.0.5"
+  },
+  "devDependencies": {
+    "prettier": "^1.19.1"
   }
 }
