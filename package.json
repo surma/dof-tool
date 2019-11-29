@@ -1,15 +1,14 @@
 {
   "name": "dof-tool",
   "version": "0.0.1",
-  "description": "",
-  "main": "script.js",
+  "private": true,
   "scripts": {
     "build": "rollup -c",
     "fmt": "prettier --write ./src/**/*.{html,js} ./*.{json,js}"
   },
   "repository": {
     "type": "git",
-    "url": "https://api.glitch.com/git/dof-tool"
+    "url": "https://github.com/surma/dof-tool"
   },
   "keywords": [],
   "author": "Surma <surma@surma.link>",
