@@ -70,7 +70,11 @@ distance.value = 5;
 
 owp
   .combineLatest(
-    owp.just(0.03), // CoC
+    owp.just({
+      width: 36,
+      height: 24,
+      coc: 0.0291
+    }), // Sensor
     fromInput(aperture)
       .pipeThrough(owp.map(v => apertureValue(v)))
       .pipeThrough(owp.distinct()),
@@ -90,8 +94,8 @@ owp
       .pipeThrough(owp.map(v => v * 1000))
   )
   .pipeThrough(
-    owp.map(([coc, aperture, focal, distance]) => ({
-      coc,
+    owp.map(([sensor, aperture, focal, distance]) => ({
+      sensor,
       aperture,
       focal,
       distance
@@ -99,9 +103,11 @@ owp
   )
   .pipeThrough(
     owp.map(data => {
-      const { aperture, focal, coc } = data;
-      const hyperfocal = focal ** 2 / (aperture * coc) + focal;
-      return { ...data, hyperfocal };
+      const { aperture, focal, sensor } = data;
+      const hyperfocal = focal ** 2 / (aperture * sensor.coc) + focal;
+      const horizontalFoV = 2 * Math.atan(sensor.width / (2 * focal));
+      const verticalFoV = 2 * Math.atan(sensor.height / (2 * focal));
+      return { ...data, hyperfocal, horizontalFoV, verticalFoV };
     })
   )
   .pipeThrough(
@@ -122,6 +128,32 @@ owp
       const totalDof = dofNear + dofFar;
       return { ...data, dofNear, dofFar, totalDof };
     })
+  )
+  .pipeThrough(
+    owp.forEach(
+      setTextContent(
+        document.querySelector("#vfov .output"),
+        ({ verticalFoV }) =>
+          `${((verticalFoV * 360) / (2 * Math.PI)).toFixed(0)}°`
+      )
+    )
+  )
+  .pipeThrough(
+    owp.forEach(
+      setTextContent(
+        document.querySelector("#hfov .output"),
+        ({ horizontalFoV }) =>
+          `${((horizontalFoV * 360) / (2 * Math.PI)).toFixed(0)}°`
+      )
+    )
+  )
+  .pipeThrough(
+    owp.forEach(
+      setTextContent(
+        document.querySelector("#hyperfocal .output"),
+        ({ hyperfocal }) => formatDistance(hyperfocal)
+      )
+    )
   )
   .pipeThrough(
     owp.forEach(
@@ -179,5 +211,4 @@ owp
       )
     )
   )
-  // .pipeThrough(owp.forEach(v => console.log(new Date().getTime(), v)))
   .pipeTo(owp.discard());
