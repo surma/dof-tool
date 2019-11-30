@@ -1,5 +1,5 @@
 import "web-streams-polyfill/dist/polyfill.es2018.mjs";
-import * as owp from "owp/dist/index.js";
+import * as ows from "observables-with-streams";
 import ScrollSlider from "./scroll-slider.js";
 
 customElements.define("scroll-slider", ScrollSlider);
@@ -24,14 +24,14 @@ function setValue(el, f = x => x) {
 }
 
 export function fromInput(el) {
-  const { next, observable } = owp.external();
+  const { next, observable } = ows.external();
   el.addEventListener("input", () => next(el.value));
   next(el.value);
   return observable;
 }
 
 export function fromChange(el) {
-  const { next, observable } = owp.external();
+  const { next, observable } = ows.external();
   el.addEventListener("change", () => next(el.value));
   next(el.value);
   return observable;
@@ -68,21 +68,21 @@ distance.numItems = 10;
 distance.style = "--spacing: 5em";
 distance.value = 5;
 
-owp
+ows
   .combineLatest(
-    owp.just({
+    ows.just({
       width: 36,
       height: 24,
       coc: 0.0291
     }), // Sensor
     fromInput(aperture)
-      .pipeThrough(owp.map(v => apertureValue(v)))
-      .pipeThrough(owp.distinct()),
+      .pipeThrough(ows.map(v => apertureValue(v)))
+      .pipeThrough(ows.distinct()),
     fromInput(focal)
-      .pipeThrough(owp.map(v => Number(v)))
-      .pipeThrough(owp.distinct())
+      .pipeThrough(ows.map(v => Number(v)))
+      .pipeThrough(ows.distinct())
       .pipeThrough(
-        owp.forEach(
+        ows.forEach(
           setTextContent(
             document.querySelector("#focalout .output"),
             v => `${v.toFixed(0)}mm`
@@ -90,11 +90,11 @@ owp
         )
       ),
     fromInput(distance)
-      .pipeThrough(owp.distinct())
-      .pipeThrough(owp.map(v => v * 1000))
+      .pipeThrough(ows.distinct())
+      .pipeThrough(ows.map(v => v * 1000))
   )
   .pipeThrough(
-    owp.map(([sensor, aperture, focal, distance]) => ({
+    ows.map(([sensor, aperture, focal, distance]) => ({
       sensor,
       aperture,
       focal,
@@ -102,7 +102,7 @@ owp
     }))
   )
   .pipeThrough(
-    owp.map(data => {
+    ows.map(data => {
       const { aperture, focal, sensor } = data;
       const hyperfocal = focal ** 2 / (aperture * sensor.coc) + focal;
       const horizontalFoV = 2 * Math.atan(sensor.width / (2 * focal));
@@ -111,7 +111,7 @@ owp
     })
   )
   .pipeThrough(
-    owp.map(data => {
+    ows.map(data => {
       const { distance, focal, hyperfocal } = data;
       const nearFocusPlane =
         (distance * (hyperfocal - focal)) / (hyperfocal + distance - 2 * focal);
@@ -121,7 +121,7 @@ owp
     })
   )
   .pipeThrough(
-    owp.map(data => {
+    ows.map(data => {
       const { distance, nearFocusPlane, farFocusPlane } = data;
       const dofNear = distance - nearFocusPlane;
       const dofFar = farFocusPlane - distance;
@@ -130,7 +130,7 @@ owp
     })
   )
   .pipeThrough(
-    owp.forEach(
+    ows.forEach(
       setTextContent(
         document.querySelector("#vfov .output"),
         ({ verticalFoV }) =>
@@ -139,7 +139,7 @@ owp
     )
   )
   .pipeThrough(
-    owp.forEach(
+    ows.forEach(
       setTextContent(
         document.querySelector("#hfov .output"),
         ({ horizontalFoV }) =>
@@ -148,7 +148,7 @@ owp
     )
   )
   .pipeThrough(
-    owp.forEach(
+    ows.forEach(
       setTextContent(
         document.querySelector("#hyperfocal .output"),
         ({ hyperfocal }) => formatDistance(hyperfocal)
@@ -156,7 +156,7 @@ owp
     )
   )
   .pipeThrough(
-    owp.forEach(
+    ows.forEach(
       setTextContent(
         document.querySelector("#hyperfocal .output"),
         ({ hyperfocal }) => formatDistance(hyperfocal)
@@ -164,7 +164,7 @@ owp
     )
   )
   .pipeThrough(
-    owp.forEach(
+    ows.forEach(
       setTextContent(
         document.querySelector("#output #totalDof tspan"),
         ({ totalDof }) => formatDistance(totalDof)
@@ -172,7 +172,7 @@ owp
     )
   )
   .pipeThrough(
-    owp.forEach(
+    ows.forEach(
       setTextContent(
         document.querySelector("#output #nearFocusPlane tspan"),
         ({ nearFocusPlane }) => formatDistance(nearFocusPlane)
@@ -180,7 +180,7 @@ owp
     )
   )
   .pipeThrough(
-    owp.forEach(
+    ows.forEach(
       setTextContent(
         document.querySelector("#output #farFocusPlane tspan"),
         ({ farFocusPlane }) => formatDistance(farFocusPlane)
@@ -188,7 +188,7 @@ owp
     )
   )
   .pipeThrough(
-    owp.forEach(
+    ows.forEach(
       setTextContent(
         document.querySelector("#output #dofNear tspan"),
         ({ dofNear }) => formatDistance(dofNear)
@@ -196,7 +196,7 @@ owp
     )
   )
   .pipeThrough(
-    owp.forEach(
+    ows.forEach(
       setTextContent(
         document.querySelector("#output #dofFar tspan"),
         ({ dofFar }) => formatDistance(dofFar)
@@ -204,11 +204,11 @@ owp
     )
   )
   .pipeThrough(
-    owp.forEach(
+    ows.forEach(
       setTextContent(
         document.querySelector("#output #distance tspan"),
         ({ distance }) => formatDistance(distance)
       )
     )
   )
-  .pipeTo(owp.discard());
+  .pipeTo(ows.discard());
