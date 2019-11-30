@@ -11,12 +11,19 @@ function myRound(v) {
   return Math.floor(v);
 }
 
-const elementCache = new Map();
+const elementsCache = new Map();
 function memoizedQuerySelector(selector) {
-  if (!elementCache.has(selector)) {
-    elementCache.set(selector, document.querySelector(selector));
+  if (!elementsCache.has(selector)) {
+    elementsCache.set(selector, [...document.querySelectorAll(selector)]);
   }
-  return elementCache.get(selector);
+  return elementsCache.get(selector)[0];
+}
+
+function memoizedQuerySelectorAll(selector) {
+  if (!elementsCache.has(selector)) {
+    elementsCache.set(selector, [...document.querySelectorAll(selector)]);
+  }
+  return elementsCache.get(selector);
 }
 
 export function fromInput(el) {
@@ -78,9 +85,10 @@ ows
       .pipeThrough(ows.map(v => Number(v)))
       .pipeThrough(ows.distinct())
       .pipeThrough(
-        ows.forEach(
-          v =>
-            (memoizedQuerySelector("#focal").textContent = `${v.toFixed(0)}mm`)
+        ows.forEach(v =>
+          memoizedQuerySelectorAll(".focal").forEach(
+            el => (el.textContent = `${v.toFixed(0)}mm`)
+          )
         )
       ),
     fromInput(distance)
@@ -146,7 +154,9 @@ ows
   .pipeThrough(
     ows.forEach(({ horizontalFoV }) => {
       const deg = (horizontalFoV * 360) / (2 * Math.PI);
-      memoizedQuerySelector("#fov").textContent = `${deg.toFixed(0)}°`;
+      memoizedQuerySelectorAll(".fov").forEach(
+        el => (el.textContent = `${deg.toFixed(0)}°`)
+      );
       const r = 38;
       const x1 = 30 + Math.cos(-horizontalFoV / 2) * r;
       const y1 = Math.sin(-horizontalFoV / 2) * r;
@@ -163,9 +173,9 @@ ows
   .pipeThrough(
     ows.forEach(
       ({ hyperfocal }) =>
-        (memoizedQuerySelector(
-          "#hyperfocal .output"
-        ).textContent = formatDistance(hyperfocal))
+        (memoizedQuerySelector(".hyperfocal").textContent = formatDistance(
+          hyperfocal
+        ))
     )
   )
   .pipeThrough(
@@ -178,8 +188,6 @@ ows
         "transform",
         `translate(${distance / 10}, 0)`
       );
-      // const maxDistance = Math.max(100, distance/100 + 10);
-      // memoizedQuerySelector("#scale").style.transform = `scale(${100/maxDistance})`;
     })
   )
   .pipeTo(ows.discard());

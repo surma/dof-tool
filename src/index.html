@@ -25,13 +25,24 @@
   }
   main {
     min-height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    max-width: 960px;
+    display: grid;
+    grid-template-columns: 1fr max-content;
+    grid-template-rows: 1fr;
+    grid-auto-rows: min-content;
+    align-items: stretch;
     margin: 0 auto;
   }
-  svg {
+  main > * {
+    grid-column: 1 / -1;
+  }
+  main > svg,
+  main > #factsheet {
+    grid-column: auto / span 1;
+  }
+  .output {
+    text-align: right;
+  }
+  main > svg {
     max-height: 66vh;
     stroke: var(--foreground);
     stroke-width: 1px;
@@ -62,7 +73,6 @@
 </style>
 <main>
   <svg
-    id="output"
     viewBox="0 0 1 1"
     version="1.1"
     xmlns="http://www.w3.org/2000/svg"
@@ -74,18 +84,23 @@
       <text
         x="27"
         y="0"
-        id="focal"
         dominant-baseline="middle"
         text-anchor="middle"
         transform="rotate(-90, 27, 0)"
-        class="invert"
+        class="invert focal"
       >
         50mm
       </text>
       <line id="fov1" class="fov-line" x1="30" y1="0" x2="100000" y2="0" />
       <line id="fov2" class="fov-line" x1="30" y1="0" x2="100000" y2="0" />
       <path id="fov-arc" stroke="1" fill="none" />
-      <text x="65" y="0" id="fov" text-anchor="end" dominant-baseline="middle">
+      <text
+        x="65"
+        y="0"
+        class="fov"
+        text-anchor="end"
+        dominant-baseline="middle"
+      >
         0°
       </text>
     </g>
@@ -110,17 +125,22 @@
       />
     </g>
   </svg>
-  <section>
-    <div id="hyperfocal">Hyperfocal distance: <span class="output"></span></div>
-    <label id="focalin">
-      <scroll-slider class="slider"></scroll-slider>
-    </label>
-    <label id="aperture">
-      <scroll-slider class="slider" snap></scroll-slider>
-    </label>
-    <label id="distance">
-      <scroll-slider class="slider"></scroll-slider>
-    </label>
-  </section>
+  <div id="factsheet">
+    <div>Focal length:</div>
+    <div class="focal output"></div>
+    <div>Hyperfocal distance:</div>
+    <div class="hyperfocal output"></div>
+    <div>Horizontal angle of view:</div>
+    <div class="fov output"></div>
+  </div>
+  <label id="focalin">
+    <scroll-slider class="slider"></scroll-slider>
+  </label>
+  <label id="aperture">
+    <scroll-slider class="slider" snap></scroll-slider>
+  </label>
+  <label id="distance">
+    <scroll-slider class="slider"></scroll-slider>
+  </label>
 </main>
 <script src="script.js"></script>
