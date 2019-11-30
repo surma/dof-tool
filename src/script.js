@@ -41,8 +41,14 @@ export function fromChange(el) {
 }
 
 function formatDistance(v) {
-  if (v < 0) {
+  if (v < 0 || !Number.isFinite(v)) {
     return "∞";
+  }
+  if (v < 10) {
+    return `${v.toFixed(0)}mm`;
+  }
+  if (v < 1000) {
+    return `${(v / 10).toFixed(1)}cm`;
   }
   return `${(v / 1000).toFixed(2)}m`;
 }
@@ -65,9 +71,9 @@ focal.style = "--spacing: 5em";
 focal.value = 50;
 
 const distance = document.querySelector("#distance scroll-slider");
-distance.valueFunction = v => 100 ** (v / 9);
-distance.labelFunction = v => `${v.toFixed(0)}m`;
-distance.numItems = 10;
+distance.valueFunction = v => 1000 ** (v / 9);
+distance.labelFunction = v => formatDistance(v);
+distance.numItems = 19;
 distance.style = "--spacing: 5em";
 distance.value = 5;
 
@@ -83,17 +89,8 @@ ows
       .pipeThrough(ows.distinct()),
     fromInput(focal)
       .pipeThrough(ows.map(v => Number(v)))
-      .pipeThrough(ows.distinct())
-      .pipeThrough(
-        ows.forEach(v =>
-          memoizedQuerySelectorAll(".focal").forEach(
-            el => (el.textContent = `${v.toFixed(0)}mm`)
-          )
-        )
-      ),
-    fromInput(distance)
-      .pipeThrough(ows.distinct())
-      .pipeThrough(ows.map(v => v * 1000))
+      .pipeThrough(ows.distinct()),
+    fromInput(distance).pipeThrough(ows.distinct())
   )
   .pipeThrough(
     ows.map(([sensor, aperture, focal, distance]) => ({
@@ -154,7 +151,7 @@ ows
   .pipeThrough(
     ows.forEach(({ horizontalFoV }) => {
       const deg = (horizontalFoV * 360) / (2 * Math.PI);
-      memoizedQuerySelectorAll(".fov").forEach(
+      memoizedQuerySelectorAll(".hfov").forEach(
         el => (el.textContent = `${deg.toFixed(0)}°`)
       );
       const r = 38;
@@ -171,14 +168,6 @@ ows
     })
   )
   .pipeThrough(
-    ows.forEach(
-      ({ hyperfocal }) =>
-        (memoizedQuerySelector(".hyperfocal").textContent = formatDistance(
-          hyperfocal
-        ))
-    )
-  )
-  .pipeThrough(
     ows.forEach(({ distance }) => {
       memoizedQuerySelector("svg").setAttribute(
         "viewBox",
@@ -187,6 +176,30 @@ ows
       memoizedQuerySelector("#world").setAttribute(
         "transform",
         `translate(${distance / 10}, 0)`
+      );
+    })
+  )
+  .pipeThrough(
+    ows.forEach(data => {
+      memoizedQuerySelectorAll(".focal").forEach(
+        el => (el.textContent = `${data.focal.toFixed(0)}mm`)
+      );
+      memoizedQuerySelectorAll(".hyperfocal").forEach(
+        el => (el.textContent = formatDistance(data.hyperfocal))
+      );
+      memoizedQuerySelectorAll(".distance").forEach(
+        el => (el.textContent = formatDistance(data.distance))
+      );
+      memoizedQuerySelectorAll(".aperture").forEach(
+        el => (el.textContent = `f/${data.aperture}`)
+      );
+      const dofBefore = data.distance - data.nearFocusPlane;
+      let dofAfter = data.farFocusPlane - data.distance;
+      memoizedQuerySelectorAll(".dof").forEach(
+        el =>
+          (el.textContent = `${formatDistance(dofBefore)} + ${formatDistance(
+            dofAfter
+          )} = ${formatDistance(dofBefore + dofAfter)}`)
       );
     })
   )

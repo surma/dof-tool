@@ -97,41 +97,49 @@
       <text
         x="65"
         y="0"
-        class="fov"
+        class="hfov"
         text-anchor="end"
         dominant-baseline="middle"
       >
         0°
       </text>
     </g>
-    <g id="world" transform="translate(50, 0)">
-      <circle cx="0" cy="0" r="9" />
-      <polyline points="-9,-1 -10,0 -9,1" />
-      <line
-        class="dashed"
-        id="nearFocusPlane"
-        x1="-25"
-        y1="-50000"
-        x2="-25"
-        y2="50000"
-      />
-      <line
-        class="dashed"
-        id="farFocusPlane"
-        x1="25"
-        y1="-50000"
-        x2="25"
-        y2="50000"
-      />
+    <g transform="translate(50, 0)">
+      <g id="world">
+        <circle cx="0" cy="0" r="9" />
+        <polyline points="-9,-1 -10,0 -9,1" />
+        <line
+          class="dashed"
+          id="nearFocusPlane"
+          x1="-25"
+          y1="-50000"
+          x2="-25"
+          y2="50000"
+        />
+        <line
+          class="dashed"
+          id="farFocusPlane"
+          x1="25"
+          y1="-50000"
+          x2="25"
+          y2="50000"
+        />
+      </g>
     </g>
   </svg>
   <div id="factsheet">
     <div>Focal length:</div>
     <div class="focal output"></div>
+    <div>Aperture</div>
+    <div class="aperture output"></div>
+    <div>Distance</div>
+    <div class="distance output"></div>
     <div>Hyperfocal distance:</div>
     <div class="hyperfocal output"></div>
     <div>Horizontal angle of view:</div>
-    <div class="fov output"></div>
+    <div class="hfov output"></div>
+    <div>DoF before + after:</div>
+    <div class="dof output"></div>
   </div>
   <label id="focalin">
     <scroll-slider class="slider"></scroll-slider>
