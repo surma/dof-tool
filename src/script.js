@@ -124,14 +124,34 @@ ows
     })
   )
   .pipeThrough(
+    ows.forEach(({ nearFocusPlane, farFocusPlane, distance }) => {
+      memoizedQuerySelector("#nearFocusPlane").setAttribute(
+        "x1",
+        (nearFocusPlane - distance) / 10
+      );
+      memoizedQuerySelector("#nearFocusPlane").setAttribute(
+        "x2",
+        (nearFocusPlane - distance) / 10
+      );
+      memoizedQuerySelector("#farFocusPlane").setAttribute(
+        "x1",
+        (farFocusPlane - distance) / 10
+      );
+      memoizedQuerySelector("#farFocusPlane").setAttribute(
+        "x2",
+        (farFocusPlane - distance) / 10
+      );
+    })
+  )
+  .pipeThrough(
     ows.forEach(({ horizontalFoV }) => {
       const deg = (horizontalFoV * 360) / (2 * Math.PI);
       memoizedQuerySelector("#fov").textContent = `${deg.toFixed(0)}°`;
       const r = 38;
       const x1 = 30 + Math.cos(-horizontalFoV / 2) * r;
-      const y1 = 50 + Math.sin(-horizontalFoV / 2) * r;
+      const y1 = Math.sin(-horizontalFoV / 2) * r;
       const x2 = 30 + Math.cos(horizontalFoV / 2) * r;
-      const y2 = 50 + Math.sin(horizontalFoV / 2) * r;
+      const y2 = Math.sin(horizontalFoV / 2) * r;
       document
         .querySelector("#fov-arc")
         .setAttribute("d", `M ${x1},${y1} A ${r},${r},${deg},0,1,${x2},${y2}`);
@@ -147,5 +167,19 @@ ows
           "#hyperfocal .output"
         ).textContent = formatDistance(hyperfocal))
     )
+  )
+  .pipeThrough(
+    ows.forEach(({ distance }) => {
+      memoizedQuerySelector("svg").setAttribute(
+        "viewBox",
+        `0 -50 ${(distance * 1.5) / 10} 100`
+      );
+      memoizedQuerySelector("#world").setAttribute(
+        "transform",
+        `translate(${distance / 10}, 0)`
+      );
+      // const maxDistance = Math.max(100, distance/100 + 10);
+      // memoizedQuerySelector("#scale").style.transform = `scale(${100/maxDistance})`;
+    })
   )
   .pipeTo(ows.discard());

@@ -34,9 +34,14 @@
   svg {
     max-height: 66vh;
     stroke: var(--foreground);
+    stroke-width: 1px;
     fill: var(--foreground);
     font-family: Arial;
     font-size: 4px;
+    flex-grow: 1;
+  }
+  svg * {
+    vector-effect: non-scaling-stroke;
   }
   svg text {
     stroke: none !important;
@@ -46,153 +51,64 @@
     stroke: var(--background);
   }
   svg .fov-line {
-    transform-origin: 30px 50%;
+    transform-origin: 30px 0%;
+  }
+  svg .dashed {
+    stroke-dasharray: 4;
+  }
+  svg #scale {
+    transform-origin: 0% 50%;
   }
 </style>
 <main>
   <svg
     id="output"
-    viewBox="0 0 100 100"
+    viewBox="0 0 1 1"
     version="1.1"
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
   >
-    <rect x="0" y="40" width="20" height="20" stroke="1" fill="none" />
-    <polyline points="20,45 30,40 30,60, 20,55" />
-    <text
-      x="27"
-      y="50"
-      id="focal"
-      dominant-baseline="middle"
-      text-anchor="middle"
-      transform="rotate(-90, 27, 50)"
-      class="invert"
-    >
-      50mm
-    </text>
-    <line id="fov1" class="fov-line" x1="30" y1="50" x2="100" y2="50" />
-    <line id="fov2" class="fov-line" x1="30" y1="50" x2="100" y2="50" />
-    <path id="fov-arc" stroke="1" fill="none" d="M 30,50 l 10,10" />
-    <text x="65" y="50" id="fov" text-anchor="end" dominant-baseline="middle">
-      0°
-    </text>
-    <!--
-      <g id="video-camera" transform="translate(9, 308)">
-        <path
-          d="M221,91 C219,90 217,90 215,91 L179,110 L179,94 C179,91 177,88 174,88 L165,88 C176,79 183,65 183,49 C183,22 161,0 134,0 C110,0 90,16 85,38 C78,29 68,24 56,24 C36,24 19,41 19,62 C19,72 23,81 30,88 L25,88 C22,88 19,91 19,94 L19,119 L5,119 C2,119 0,121 0,124 L0,146 C0,149 2,152 5,152 L19,152 L19,177 C19,180 22,183 25,183 L90,183 L60,240 C59,243 60,246 62,248 C63,248 64,249 65,249 C67,249 69,247 70,246 L99,189 L129,246 C130,247 132,249 134,249 C134,249 135,248 136,248 C139,246 140,243 138,240 L108,183 L174,183 C177,183 179,180 179,177 L179,160 L215,180 C216,180 217,180 218,180 C219,180 220,180 221,180 C222,179 224,177 224,175 L224,96 C224,94 222,92 221,91 Z M19,141 L11,141 L11,130 L19,130 L19,141 Z M134,11 C155,11 172,28 172,49 C172,71 155,88 134,88 C112,88 95,71 95,49 C95,28 112,11 134,11 Z M91,75 C94,80 98,84 102,88 L83,88 C86,84 89,80 91,75 Z M56,35 C71,35 83,47 83,62 C83,76 71,88 56,88 C42,88 30,76 30,62 C30,47 42,35 56,35 Z M168,119 L168,151 L168,171 L99,171 C99,171 99,171 99,171 L99,171 C99,171 99,171 99,171 L30,171 L30,146 L30,124 L30,99 L168,99 L168,119 Z M212,166 L179,148 L179,123 L212,105 L212,166 Z"
-        ></path>
-        <path
-          d="M57,45 C47,45 40,52 40,62 C40,71 47,79 57,79 C66,79 74,71 74,62 C74,52 66,45 57,45 Z M57,68 C53,68 50,65 50,61 C50,58 53,55 57,55 C60,55 63,58 63,61 C63,65 60,68 57,68 Z"
-        ></path>
-        <path
-          d="M134,26 C120,26 110,36 110,50 C110,63 120,74 134,74 C147,74 158,63 158,50 C158,36 147,26 134,26 Z M134,62 C126,62 121,57 121,50 C121,42 126,37 134,37 C141,37 146,42 146,50 C146,57 141,62 134,62 Z"
-        ></path>
-        <path
-          d="M116,116 L56,116 C53,116 51,118 51,121 L51,150 C51,153 53,156 56,156 L116,156 C119,156 122,153 122,150 L122,121 C122,118 119,116 116,116 Z M111,145 L61,145 L61,126 L111,126 L111,145 L111,145 Z"
-        ></path>
-        <circle cx="145" cy="126" r="5"></circle>
-      <g id="tree" transform="translate(438, 189)">
-        <path
-          d="M267,88 C264,65 253,43 235,27 C216,9 191,0 165,0 C138,0 113,9 94,27 C76,43 65,65 62,88 C24,105 0,142 0,183 C0,240 46,287 103,287 C121,287 138,282 153,274 L153,380 L176,380 L176,274 C191,282 208,287 226,287 C283,287 330,240 330,183 C330,142 305,105 267,88 Z M226,264 C208,264 190,258 176,247 L176,179 L226,153 L215,133 L176,154 L176,110 L153,110 L153,203 L114,183 L103,202 L153,229 L153,247 C139,258 121,264 103,264 C58,264 22,228 22,183 C22,149 44,118 76,107 L83,104 L83,97 C85,76 94,58 109,44 C124,30 144,22 165,22 C185,22 205,30 220,44 C235,58 244,76 246,97 L246,104 L253,107 C285,118 307,149 307,183 C307,228 271,264 226,264 Z"
-        ></path>
-      </g>
-    -->
-
-    <line
-      x1="383"
-      y1="628"
-      x2="383"
-      y2="170"
-      id="nearFocusPlaneLine"
-      stroke-width="5"
-      stroke-linecap="square"
-      stroke-dasharray="27,21"
-    ></line>
-    <line
-      x1="821"
-      y1="628"
-      x2="821"
-      y2="170"
-      id="farFocusPlaneLine"
-      stroke-width="5"
-      stroke-linecap="square"
-      stroke-dasharray="27,21"
-    ></line>
-    <line x1="821" y1="571" x2="9" y2="571" id="ground" stroke-width="9"></line>
-    <path
-      id="nearFocusPlaneMeasurement"
-      d="M385,99 L385,118 L382,118 L382,110 L196,110 L196,118 L193,119 L192,100 L195,99 L195,107 L382,107 L382,99 L385,99 Z"
-    ></path>
-    <path
-      id="distanceMeasurement"
-      d="M605,676 L605,695 L602,695 L602,687 L196,687 L196,695 L193,695 L193,676 L196,676 L196,684 L602,684 L602,676 L605,676 Z"
-      fill-rule="nonzero"
-    ></path>
-    <path
-      id="dofNearMeasurement"
-      d="M606,743 L606,762 L603,762 L603,754 L385,754 L385,762 L382,762 L382,743 L385,743 L385,751 L603,751 L603,743 L606,743 Z"
-      fill-rule="nonzero"
-    ></path>
-    <path
-      transform="translate(222, 0)"
-      id="dofFarMeasurement"
-      d="M606,743 L606,762 L603,762 L603,754 L385,754 L385,762 L382,762 L382,743 L385,743 L385,751 L603,751 L603,743 L606,743 Z"
-      fill-rule="nonzero"
-    ></path>
-    <path
-      transform="translate(-500, 0)"
-      id="totalDofMeasurement"
-      d="M1323,823 L1320,823 L1320,815 L885,815 L885,823 L882,823 L882,804 L885,804 L885,812 L1320,812 L1320,804 L1323,804 L1323,823 Z"
-      fill-rule="nonzero"
-    ></path>
-    <path
-      id="farFocusPlaneMeasurement"
-      d="M823,33 L823,52 L820,52 L820,44 L196,44 L196,52 L193,53 L192,34 L195,33 L195,41 L820,41 L820,33 L823,33 Z"
-      fill-rule="nonzero"
-    ></path>
-    <text
-      id="nearFocusPlane"
-      font-family="Arial"
-      font-size="24"
-      font-weight="normal"
-    >
-      <tspan x="262" y="95">0.0m</tspan>
-    </text>
-    <text
-      id="farFocusPlane"
-      font-family="Arial"
-      font-size="24"
-      font-weight="normal"
-    >
-      <tspan x="491" y="29">0.0m</tspan>
-    </text>
-    <text id="distance" font-family="Arial" font-size="24" font-weight="normal">
-      <tspan x="372" y="672">0.0m</tspan>
-    </text>
-    <text
-      id="dofNear"
-      font-family="ArialMT, Arial"
-      font-size="24"
-      font-weight="normal"
-    >
-      <tspan x="467" y="739">0.0m</tspan>
-    </text>
-    <text
-      id="dofFar"
-      font-family="ArialMT, Arial"
-      font-size="24"
-      font-weight="normal"
-    >
-      <tspan x="687" y="744">0.0m</tspan>
-    </text>
-    <text
-      id="totalDof"
-      font-family="ArialMT, Arial"
-      font-size="24"
-      font-weight="normal"
-    >
-      <tspan x="575" y="800">0.0m</tspan>
-    </text>
+    <g id="camera">
+      <rect x="0" y="-10" width="20" height="20" stroke="1" fill="none" />
+      <polyline points="20,-5 30,-10 30,10, 20,5" />
+      <text
+        x="27"
+        y="0"
+        id="focal"
+        dominant-baseline="middle"
+        text-anchor="middle"
+        transform="rotate(-90, 27, 0)"
+        class="invert"
+      >
+        50mm
+      </text>
+      <line id="fov1" class="fov-line" x1="30" y1="0" x2="100000" y2="0" />
+      <line id="fov2" class="fov-line" x1="30" y1="0" x2="100000" y2="0" />
+      <path id="fov-arc" stroke="1" fill="none" />
+      <text x="65" y="0" id="fov" text-anchor="end" dominant-baseline="middle">
+        0°
+      </text>
+    </g>
+    <g id="world" transform="translate(50, 0)">
+      <circle cx="0" cy="0" r="9" />
+      <polyline points="-9,-1 -10,0 -9,1" />
+      <line
+        class="dashed"
+        id="nearFocusPlane"
+        x1="-25"
+        y1="-50000"
+        x2="-25"
+        y2="50000"
+      />
+      <line
+        class="dashed"
+        id="farFocusPlane"
+        x1="25"
+        y1="-50000"
+        x2="25"
+        y2="50000"
+      />
+    </g>
   </svg>
   <section>
     <div id="hyperfocal">Hyperfocal distance: <span class="output"></span></div>
