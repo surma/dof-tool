@@ -11,16 +11,12 @@ function myRound(v) {
   return Math.floor(v);
 }
 
-function setTextContent(el, f = x => x) {
-  return v => {
-    el.textContent = f(v);
-  };
-}
-
-function setValue(el, f = x => x) {
-  return v => {
-    el.value = f(v);
-  };
+const elementCache = new Map();
+function memoizedQuerySelector(selector) {
+  if (!elementCache.has(selector)) {
+    elementCache.set(selector, document.querySelector(selector));
+  }
+  return elementCache.get(selector);
 }
 
 export function fromInput(el) {
@@ -83,10 +79,8 @@ ows
       .pipeThrough(ows.distinct())
       .pipeThrough(
         ows.forEach(
-          setTextContent(
-            document.querySelector("#focal"),
-            v => `${v.toFixed(0)}mm`
-          )
+          v =>
+            (memoizedQuerySelector("#focal").textContent = `${v.toFixed(0)}mm`)
         )
       ),
     fromInput(distance)
@@ -132,7 +126,7 @@ ows
   .pipeThrough(
     ows.forEach(({ horizontalFoV }) => {
       const deg = (horizontalFoV * 360) / (2 * Math.PI);
-      document.querySelector("#fov").textContent = `${deg.toFixed(0)}°`;
+      memoizedQuerySelector("#fov").textContent = `${deg.toFixed(0)}°`;
       const r = 38;
       const x1 = 30 + Math.cos(-horizontalFoV / 2) * r;
       const y1 = 50 + Math.sin(-horizontalFoV / 2) * r;
@@ -141,65 +135,17 @@ ows
       document
         .querySelector("#fov-arc")
         .setAttribute("d", `M ${x1},${y1} A ${r},${r},${deg},0,1,${x2},${y2}`);
-      document.querySelector("#fov1").style.transform = `rotate(${(-1 * deg) /
+      memoizedQuerySelector("#fov1").style.transform = `rotate(${(-1 * deg) /
         2}deg)`;
-      document.querySelector("#fov2").style.transform = `rotate(${deg / 2}deg)`;
+      memoizedQuerySelector("#fov2").style.transform = `rotate(${deg / 2}deg)`;
     })
   )
   .pipeThrough(
     ows.forEach(
-      setTextContent(
-        document.querySelector("#hyperfocal .output"),
-        ({ hyperfocal }) => formatDistance(hyperfocal)
-      )
-    )
-  )
-  .pipeThrough(
-    ows.forEach(
-      setTextContent(
-        document.querySelector("#output #totalDof tspan"),
-        ({ totalDof }) => formatDistance(totalDof)
-      )
-    )
-  )
-  .pipeThrough(
-    ows.forEach(
-      setTextContent(
-        document.querySelector("#output #nearFocusPlane tspan"),
-        ({ nearFocusPlane }) => formatDistance(nearFocusPlane)
-      )
-    )
-  )
-  .pipeThrough(
-    ows.forEach(
-      setTextContent(
-        document.querySelector("#output #farFocusPlane tspan"),
-        ({ farFocusPlane }) => formatDistance(farFocusPlane)
-      )
-    )
-  )
-  .pipeThrough(
-    ows.forEach(
-      setTextContent(
-        document.querySelector("#output #dofNear tspan"),
-        ({ dofNear }) => formatDistance(dofNear)
-      )
-    )
-  )
-  .pipeThrough(
-    ows.forEach(
-      setTextContent(
-        document.querySelector("#output #dofFar tspan"),
-        ({ dofFar }) => formatDistance(dofFar)
-      )
-    )
-  )
-  .pipeThrough(
-    ows.forEach(
-      setTextContent(
-        document.querySelector("#output #distance tspan"),
-        ({ distance }) => formatDistance(distance)
-      )
+      ({ hyperfocal }) =>
+        (memoizedQuerySelector(
+          "#hyperfocal .output"
+        ).textContent = formatDistance(hyperfocal))
     )
   )
   .pipeTo(ows.discard());
