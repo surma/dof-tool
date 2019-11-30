@@ -130,30 +130,21 @@ ows
     })
   )
   .pipeThrough(
-    ows.forEach(
-      setTextContent(
-        document.querySelector("#vfov .output"),
-        ({ verticalFoV }) =>
-          `${((verticalFoV * 360) / (2 * Math.PI)).toFixed(0)}°`
-      )
-    )
-  )
-  .pipeThrough(
-    ows.forEach(
-      setTextContent(
-        document.querySelector("#hfov .output"),
-        ({ horizontalFoV }) =>
-          `${((horizontalFoV * 360) / (2 * Math.PI)).toFixed(0)}°`
-      )
-    )
-  )
-  .pipeThrough(
-    ows.forEach(
-      setTextContent(
-        document.querySelector("#hyperfocal .output"),
-        ({ hyperfocal }) => formatDistance(hyperfocal)
-      )
-    )
+    ows.forEach(({ horizontalFoV }) => {
+      const deg = (horizontalFoV * 360) / (2 * Math.PI);
+      document.querySelector("#fov").textContent = `${deg.toFixed(0)}°`;
+      const r = 38;
+      const x1 = 30 + Math.cos(-horizontalFoV / 2) * r;
+      const y1 = 50 + Math.sin(-horizontalFoV / 2) * r;
+      const x2 = 30 + Math.cos(horizontalFoV / 2) * r;
+      const y2 = 50 + Math.sin(horizontalFoV / 2) * r;
+      document
+        .querySelector("#fov-arc")
+        .setAttribute("d", `M ${x1},${y1} A ${r},${r},${deg},0,1,${x2},${y2}`);
+      document.querySelector("#fov1").style.transform = `rotate(${(-1 * deg) /
+        2}deg)`;
+      document.querySelector("#fov2").style.transform = `rotate(${deg / 2}deg)`;
+    })
   )
   .pipeThrough(
     ows.forEach(

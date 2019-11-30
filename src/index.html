@@ -35,6 +35,8 @@
     max-height: 66vh;
     stroke: var(--foreground);
     fill: var(--foreground);
+    font-family: Arial;
+    font-size: 4px;
   }
   svg text {
     stroke: none !important;
@@ -42,6 +44,9 @@
   svg .invert {
     fill: var(--background);
     stroke: var(--background);
+  }
+  svg .fov-line {
+    transform-origin: 30px 50%;
   }
 </style>
 <main>
@@ -58,15 +63,18 @@
       x="27"
       y="50"
       id="focal"
-      font-family="ArialMT, Arial"
-      font-size="4"
-      font-weight="normal"
       dominant-baseline="middle"
       text-anchor="middle"
       transform="rotate(-90, 27, 50)"
       class="invert"
     >
       50mm
+    </text>
+    <line id="fov1" class="fov-line" x1="30" y1="50" x2="100" y2="50" />
+    <line id="fov2" class="fov-line" x1="30" y1="50" x2="100" y2="50" />
+    <path id="fov-arc" stroke="1" fill="none" d="M 30,50 l 10,10" />
+    <text x="65" y="50" id="fov" text-anchor="end" dominant-baseline="middle">
+      0°
     </text>
     <!--
       <g id="video-camera" transform="translate(9, 308)">
@@ -187,8 +195,6 @@
     </text>
   </svg>
   <section>
-    <div id="vfov">Vertical FoV: <span class="output"></span></div>
-    <div id="hfov">Horizontal FoV: <span class="output"></span></div>
     <div id="hyperfocal">Hyperfocal distance: <span class="output"></span></div>
     <label id="focalin">
       <scroll-slider class="slider"></scroll-slider>
