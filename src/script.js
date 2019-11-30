@@ -54,7 +54,7 @@ aperture.labelFunction = v => `f/${v.toFixed(1)}`;
 aperture.numItems = 31;
 aperture.value = 2.8;
 
-const focal = document.querySelector("#focal scroll-slider");
+const focal = document.querySelector("#focalin scroll-slider");
 focal.valueFunction = v => 7 + 192 ** (v / 9);
 focal.labelFunction = v => `${v.toFixed(0)}mm`;
 focal.numItems = 10;
@@ -84,7 +84,7 @@ ows
       .pipeThrough(
         ows.forEach(
           setTextContent(
-            document.querySelector("#focalout .output"),
+            document.querySelector("#focal"),
             v => `${v.toFixed(0)}mm`
           )
         )
