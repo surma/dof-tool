@@ -169,7 +169,7 @@ ows
     ows.forEach(({ distance }) => {
       memoizedQuerySelector("svg").setAttribute(
         "viewBox",
-        `0 -50 ${Math.max((distance + 20) / 10, 100)} 100`
+        `0 -50 ${Math.max((distance * 1.3 + 300 + 200 + 200) / 10, 100)} 100`
       );
       memoizedQuerySelector("#world").setAttribute(
         "transform",
