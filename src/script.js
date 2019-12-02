@@ -85,7 +85,6 @@ ows
       coc: 0.0291
     }), // Sensor
     fromInput(aperture)
-      .pipeThrough(ows.map(v => apertureValue(v)))
       .pipeThrough(ows.distinct()),
     fromInput(focal)
       .pipeThrough(ows.map(v => Number(v)))
