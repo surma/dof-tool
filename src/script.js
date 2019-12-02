@@ -75,7 +75,7 @@ distance.valueFunction = v => 1000 ** (v / 9);
 distance.labelFunction = v => formatDistance(v);
 distance.numItems = 19;
 distance.style = "--spacing: 5em";
-distance.value = 5;
+distance.value = 1000;
 
 ows
   .combineLatest(
@@ -84,8 +84,7 @@ ows
       height: 24,
       coc: 0.0291
     }), // Sensor
-    fromInput(aperture)
-      .pipeThrough(ows.distinct()),
+    fromInput(aperture).pipeThrough(ows.distinct()),
     fromInput(focal)
       .pipeThrough(ows.map(v => Number(v)))
       .pipeThrough(ows.distinct()),
@@ -170,7 +169,7 @@ ows
     ows.forEach(({ distance }) => {
       memoizedQuerySelector("svg").setAttribute(
         "viewBox",
-        `0 -50 ${Math.max((distance * 1.5) / 10, 100)} 100`
+        `0 -50 ${Math.max((distance + 20) / 10, 100)} 100`
       );
       memoizedQuerySelector("#world").setAttribute(
         "transform",

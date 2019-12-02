@@ -20,23 +20,26 @@
     font-size: 24px;
     height: 100%;
   }
-  body {
-    padding: 10px;
-  }
   main {
-    min-height: 100%;
+    height: 100%;
     display: grid;
-    grid-template-columns: 1fr max-content;
-    grid-template-rows: 1fr;
-    grid-auto-rows: min-content;
+    grid-template-columns: 1fr;
+    grid-template-rows: min-content 1fr repeat(3, min-content);
     align-items: stretch;
     margin: 0 auto;
   }
   main > * {
     grid-column: 1 / -1;
   }
-  main > svg,
-  main > #factsheet {
+  #factsheet {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    padding: 0.4em;
+    background: rgba(0, 0, 0, 0.8);
+    justify-content: space-between;
+    grid-gap: 0.3em 2em;
+  }
+  main > svg {
     grid-column: auto / span 1;
   }
   .output {
@@ -49,7 +52,6 @@
     fill: var(--foreground);
     font-family: Arial;
     font-size: 4px;
-    flex-grow: 1;
   }
   svg * {
     vector-effect: non-scaling-stroke;
@@ -72,6 +74,20 @@
   }
 </style>
 <main>
+  <div id="factsheet">
+    <div>Focal length</div>
+    <div class="focal output"></div>
+    <div>Aperture</div>
+    <div class="aperture output"></div>
+    <div>Distance</div>
+    <div class="distance output"></div>
+    <div>Hyperfocal</div>
+    <div class="hyperfocal output"></div>
+    <div>Horizontal FoV</div>
+    <div class="hfov output"></div>
+    <div>DoF before + after</div>
+    <div class="dof output"></div>
+  </div>
   <svg
     viewBox="0 0 1 1"
     version="1.1"
@@ -126,20 +142,6 @@
       </g>
     </g>
   </svg>
-  <div id="factsheet">
-    <div>Focal length:</div>
-    <div class="focal output"></div>
-    <div>Aperture</div>
-    <div class="aperture output"></div>
-    <div>Distance</div>
-    <div class="distance output"></div>
-    <div>Hyperfocal distance:</div>
-    <div class="hyperfocal output"></div>
-    <div>Horizontal angle of view:</div>
-    <div class="hfov output"></div>
-    <div>DoF before + after:</div>
-    <div class="dof output"></div>
-  </div>
   <label id="focalin">
     <scroll-slider class="slider"></scroll-slider>
   </label>

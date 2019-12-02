@@ -124,6 +124,8 @@ export default class ScrollSlider extends HTMLElement {
   }
 
   set value(target) {
+    // Binary search to find the scroll position that is equivalent
+    // to the value provided.
     const max = this._container.scrollWidth - this._container.clientWidth;
     let current = max / 2;
     let delta = max / 4;
