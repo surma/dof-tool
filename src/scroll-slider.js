@@ -14,6 +14,7 @@ export default class ScrollSlider extends HTMLElement {
           overflow: hidden;
           width: auto;
           height: 3em;
+          user-select: none;
         }
         #wrapper {
           position: relative;
