@@ -40,7 +40,7 @@ export function fromChange(el) {
   return observable;
 }
 
-function formatDistance(v) {
+function formatDistance(v, decimals = true) {
   if (v < 0 || !Number.isFinite(v)) {
     return "∞";
   }
@@ -48,9 +48,9 @@ function formatDistance(v) {
     return `${v.toFixed(0)}mm`;
   }
   if (v < 1000) {
-    return `${(v / 10).toFixed(1)}cm`;
+    return `${decimals ? (v / 10).toFixed(1) : (v / 10).toFixed(0)}cm`;
   }
-  return `${(v / 1000).toFixed(2)}m`;
+  return `${decimals ? (v / 1000).toFixed(2) : (v / 1000).toFixed(0)}m`;
 }
 
 function apertureValue(v) {
@@ -72,7 +72,7 @@ focal.value = 50;
 
 const distance = document.querySelector("#distance scroll-slider");
 distance.valueFunction = v => 1000 ** (v / 9);
-distance.labelFunction = v => formatDistance(v);
+distance.labelFunction = v => formatDistance(v, false);
 distance.numItems = 19;
 distance.style = "--spacing: 5em";
 distance.value = 1000;
