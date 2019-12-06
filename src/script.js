@@ -14,6 +14,7 @@
 import "web-streams-polyfill/dist/polyfill.es2018.mjs";
 import * as ows from "observables-with-streams";
 import ScrollSlider from "./scroll-slider.js";
+import * as idb from "idb-keyval";
 
 customElements.define("scroll-slider", ScrollSlider);
 
@@ -70,38 +71,70 @@ function apertureValue(v) {
   return myRound(Math.sqrt(2 ** (Math.round(v) / 3)) * 10) / 10;
 }
 
-const aperture = document.querySelector("#aperture scroll-slider");
-aperture.valueFunction = apertureValue;
-aperture.labelFunction = v => `f/${v.toFixed(1)}`;
-aperture.numItems = 31;
-aperture.value = 2.8;
+function fromAsyncFunction(f) {
+  return ows.fromPromise(f());
+}
 
-const focal = document.querySelector("#focalin scroll-slider");
-focal.valueFunction = v => 7 + 192 ** (v / 9);
-focal.labelFunction = v => `${v.toFixed(0)}mm`;
-focal.numItems = 10;
-focal.style = "--spacing: 5em";
-focal.value = 50;
-
-const distance = document.querySelector("#distance scroll-slider");
-distance.valueFunction = v => 1000 ** (v / 9);
-distance.labelFunction = v => formatDistance(v, false);
-distance.numItems = 19;
-distance.style = "--spacing: 5em";
-distance.value = 1000;
+function settle(ms) {
+  let timeout, savedChunk;
+  return new TransformStream({
+    transform(chunk, controller) {
+      savedChunk = chunk;
+      if (timeout > 0) {
+        clearTimeout(timeout);
+      }
+      timeout = setTimeout(() => {
+        controller.enqueue(savedChunk);
+        timeout = 0;
+      }, ms);
+    }
+  });
+}
 
 ows
   .combineLatest(
+    // Sensor
     ows.just({
       width: 36,
       height: 24,
       coc: 0.0291
-    }), // Sensor
-    fromInput(aperture).pipeThrough(ows.distinct()),
-    fromInput(focal)
-      .pipeThrough(ows.map(v => Number(v)))
-      .pipeThrough(ows.distinct()),
-    fromInput(distance).pipeThrough(ows.distinct())
+    }),
+    // Aperture slider
+    fromAsyncFunction(async () => {
+      const { aperture } = (await idb.get("settings")) || {};
+      const apertureSlider = document.querySelector("#aperture scroll-slider");
+      apertureSlider.valueFunction = apertureValue;
+      apertureSlider.labelFunction = v => `f/${v.toFixed(1)}`;
+      apertureSlider.numItems = 31;
+      apertureSlider.value = aperture || 2.8;
+      return fromInput(apertureSlider).pipeThrough(ows.distinct());
+    }).pipeThrough(ows.switchAll()),
+    // Focal length slider
+    fromAsyncFunction(async () => {
+      const { focal } = (await idb.get("settings")) || {};
+      const focalSlider = document.querySelector("#focalin scroll-slider");
+      focalSlider.valueFunction = v => 7 + 192 ** (v / 9);
+      focalSlider.labelFunction = v => `${v.toFixed(0)}mm`;
+      focalSlider.numItems = 10;
+      focalSlider.style = "--spacing: 5em";
+      focalSlider.value = focal || 50;
+
+      return fromInput(focalSlider)
+        .pipeThrough(ows.map(v => Number(v)))
+        .pipeThrough(ows.distinct());
+    }).pipeThrough(ows.switchAll()),
+    // Distance slider
+    fromAsyncFunction(async () => {
+      const { distance } = (await idb.get("settings")) || {};
+      const distanceSlider = document.querySelector("#distance scroll-slider");
+      distanceSlider.valueFunction = v => 1000 ** (v / 9);
+      distanceSlider.labelFunction = v => formatDistance(v, false);
+      distanceSlider.numItems = 19;
+      distanceSlider.style = "--spacing: 5em";
+      distanceSlider.value = distance || 1000;
+
+      return fromInput(distanceSlider).pipeThrough(ows.distinct());
+    }).pipeThrough(ows.switchAll())
   )
   .pipeThrough(
     ows.map(([sensor, aperture, focal, distance]) => ({
@@ -213,5 +246,11 @@ ows
           )} = ${formatDistance(dofBefore + dofAfter)}`)
       );
     })
+  )
+  .pipeThrough(settle(500))
+  .pipeThrough(
+    ows.forEach(({ distance, focal, aperture }) =>
+      idb.set("settings", { aperture, distance, focal })
+    )
   )
   .pipeTo(ows.discard());

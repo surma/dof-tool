@@ -15,11 +15,12 @@
   "license": "Apache-2.0",
   "dependencies": {
     "html-minifier": "^4.0.0",
-    "observables-with-streams": "^0.3.1",
-    "rollup": "^1.27.0",
+    "idb-keyval": "^3.2.0",
+    "observables-with-streams": "^0.4.2",
+    "rollup": "^1.27.8",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-terser": "^5.1.2",
-    "web-streams-polyfill": "^2.0.5"
+    "web-streams-polyfill": "^2.0.6"
   },
   "devDependencies": {
     "prettier": "^1.19.1"
