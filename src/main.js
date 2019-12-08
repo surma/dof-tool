@@ -73,6 +73,11 @@ const apertures = [
   32
 ];
 
+// 1, 2, 5, 10, 20, 50, 100, 200, 500, ...
+function bankNoteSequence(v) {
+  return [1, 2, 5][v % 3] * 10 ** Math.floor(v / 3);
+}
+
 async function idbGetWithDefault(key, def) {
   if (!(await idb.keys()).includes(key)) {
     return def;
@@ -176,9 +181,13 @@ export function init() {
           const distanceSlider = document.querySelector(
             "#distance scroll-slider"
           );
-          distanceSlider.valueFunction = v => 1000 ** (v / 9);
+          distanceSlider.valueFunction = v => {
+            const left = bankNoteSequence(Math.floor(v));
+            const right = bankNoteSequence(Math.ceil(v));
+            return left + (right - left) * (v % 1);
+          };
           distanceSlider.labelFunction = v => formatDistance(v, false);
-          distanceSlider.numItems = 19;
+          distanceSlider.numItems = 16;
           distanceSlider.style = "--spacing: 5em";
           distanceSlider.value = distance || 1000;
 
