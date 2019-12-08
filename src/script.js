@@ -11,7 +11,9 @@
  * limitations under the License.
  */
 
-async function init() {
+import { init } from "./main.js";
+
+(async function() {
   const hasReadableStream = typeof ReadableStream !== "undefined";
   const hasWritableStream = typeof WritableStream !== "undefined";
   const hasTransformStream = typeof TransformStream !== "undefined";
@@ -19,6 +21,6 @@ async function init() {
   if (!hasReadableStream || !hasWritableStream || !hasTransformStream) {
     await import("web-streams-polyfill/dist/polyfill.es2018.mjs");
   }
-  import("./main.js");
-}
-init();
+  init();
+  import("./analytics.js");
+})();
