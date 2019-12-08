@@ -30,11 +30,8 @@ export default class ScrollSlider extends HTMLElement {
           width: auto;
           height: 3em;
           user-select: none;
-        }
-        #wrapper {
-          position: relative;
-          width: 100%;
-          height: 100%;
+          box-shadow: 0 -6px 4px -4px rgba(0, 0, 0, 0.2) inset,
+            0 6px 4px -4px rgba(0, 0, 0, 0.2) inset;
         }
         #scroller {
           position: absolute;
