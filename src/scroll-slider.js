@@ -86,6 +86,9 @@ export default class ScrollSlider extends HTMLElement {
           justify-content: center;
           width: var(--spacing, 3em);
           flex-shrink: 0;
+          opacity: 0.5;
+          transform: scale(0.5);
+          transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
         }
         .label:first-of-type {
           margin-left: calc(-0.5 * var(--spacing, 3em));
@@ -167,15 +170,20 @@ export default class ScrollSlider extends HTMLElement {
     this._regenerateLabels();
   }
 
-  _valueForScrollPos(pos) {
-    const offset =
+  _offsetForScrollPos(pos = this._scroller.scrollLeft) {
+    return (
       (pos / (this._scroller.scrollWidth - this._scroller.clientWidth)) *
-      (this._numItems - 1);
+      (this._numItems - 1)
+    );
+  }
+
+  _valueForScrollPos(pos = this._scroller.scrollLeft) {
+    const offset = this._offsetForScrollPos(pos);
     return this._valueFunction(offset);
   }
 
   get value() {
-    return this._valueForScrollPos(this._scroller.scrollLeft);
+    return this._valueForScrollPos();
   }
 
   set value(target) {
@@ -220,11 +228,38 @@ export default class ScrollSlider extends HTMLElement {
     }
   }
 
+  _labels() {
+    return [...this._container.querySelectorAll(".label")];
+  }
+
   _onScroll() {
     this._dispatchInputEvent();
+    this._adjustLabelSize();
+  }
+
+  _adjustLabelSize() {
+    const offset = this._offsetForScrollPos();
+    const labels = this._labels();
+    labels.forEach(label => {
+      label.style.opacity = "0.5";
+      label.style.transform = "scale(0.7)";
+    });
+    const left = Math.floor(offset);
+    const right = Math.ceil(offset);
+    const leftFactor = distanceMap(Math.abs(left - offset));
+    const rightFactor = distanceMap(Math.abs(right - offset));
+    labels[left].style.opacity = leftFactor * 0.5 + 0.5;
+    labels[left].style.transform = `scale(${leftFactor * 0.3 + 0.7})`;
+    labels[right].style.opacity = rightFactor * 0.5 + 0.5;
+    labels[right].style.transform = `scale(${rightFactor * 0.3 + 0.7})`;
   }
 
   _dispatchInputEvent() {
     this.dispatchEvent(new InputEvent("input"));
   }
+}
+
+function distanceMap(v) {
+  // Gamma correction formula as an easing curve
+  return Math.pow(1 - v, 0.8);
 }
