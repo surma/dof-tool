@@ -17,18 +17,67 @@ import * as idb from "idb-keyval";
 
 customElements.define("scroll-slider", ScrollSlider);
 
+const focals = [
+  1,
+  4,
+  8,
+  11,
+  15,
+  24,
+  35,
+  50,
+  70,
+  85,
+  100,
+  200,
+  300,
+  400,
+  500,
+  600
+];
+
+const apertures = [
+  0.7,
+  0.8,
+  0.9,
+  1.0,
+  1.1,
+  1.2,
+  1.4,
+  1.6,
+  1.8,
+  2,
+  2.2,
+  2.5,
+  2.8,
+  3.2,
+  3.5,
+  4,
+  4.5,
+  5.0,
+  5.6,
+  6.3,
+  7.1,
+  8,
+  9,
+  10,
+  11,
+  13,
+  14,
+  16,
+  18,
+  20,
+  22,
+  25,
+  29,
+  32
+];
+
 async function idbGetWithDefault(key, def) {
   if (!(await idb.keys()).includes(key)) {
     return def;
   }
   return idb.get(key);
-}
-
-function myRound(v) {
-  if (v % 1 >= 0.6) {
-    return Math.ceil(v);
-  }
-  return Math.floor(v);
 }
 
 const elementsCache = new Map();
@@ -73,10 +122,6 @@ function formatDistance(v, decimals = true) {
   return `${decimals ? (v / 1000).toFixed(2) : (v / 1000).toFixed(0)}m`;
 }
 
-function apertureValue(v) {
-  return myRound(Math.sqrt(2 ** (Math.round(v) / 3)) * 10) / 10;
-}
-
 export function init() {
   ows
     .combineLatest(
@@ -93,9 +138,13 @@ export function init() {
           const apertureSlider = document.querySelector(
             "#aperture scroll-slider"
           );
-          apertureSlider.valueFunction = apertureValue;
+          apertureSlider.valueFunction = v => {
+            const left = apertures[Math.floor(v)];
+            const right = apertures[Math.ceil(v)];
+            return left + (right - left) * (v % 1);
+          };
           apertureSlider.labelFunction = v => `f/${v.toFixed(1)}`;
-          apertureSlider.numItems = 31;
+          apertureSlider.numItems = apertures.length;
           apertureSlider.value = aperture || 2.8;
           return fromInput(apertureSlider).pipeThrough(ows.distinct());
         })
@@ -103,24 +152,6 @@ export function init() {
       // Focal length slider
       ows
         .fromAsyncFunction(async () => {
-          const focals = [
-            1,
-            4,
-            8,
-            11,
-            15,
-            24,
-            35,
-            50,
-            70,
-            85,
-            100,
-            200,
-            300,
-            400,
-            500,
-            600
-          ];
           const { focal } = await idbGetWithDefault("settings", {});
           const focalSlider = document.querySelector("#focalin scroll-slider");
           focalSlider.valueFunction = v => {
