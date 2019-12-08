@@ -11,6 +11,8 @@
  * limitations under the License.
  */
 
+const html = String.raw;
+
 export default class ScrollSlider extends HTMLElement {
   static get observedAttributes() {
     return ["snap", "num-items"];
@@ -19,7 +21,7 @@ export default class ScrollSlider extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
-    this.shadowRoot.innerHTML = `
+    this.shadowRoot.innerHTML = html`
       <style>
         :host {
           display: block;
@@ -34,13 +36,20 @@ export default class ScrollSlider extends HTMLElement {
           width: 100%;
           height: 100%;
         }
-        #container {
+        #scroller {
           position: absolute;
           top: 0;
           left: 0;
           right: 0;
           bottom: calc(-1 * var(--scrollbar-margin, 20px));
           overflow: auto;
+        }
+        #container {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: var(--scrollbar-margin, 20px);
           display: flex;
         }
         .snap {
@@ -50,8 +59,20 @@ export default class ScrollSlider extends HTMLElement {
           position: absolute;
           left: 50%;
           height: calc(100% - 2px);
-          border-left: 1px solid red;
+          width: 0.5rem;
+          transform: translateX(-50%);
           pointer-events: none;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+        }
+        #crosshair svg {
+          fill: var(--crosshair-color);
+          stroke: none;
+          width: 100%;
+        }
+        #crosshair svg:nth-of-type(2) {
+          transform: scaleY(-1);
         }
         .padding {
           display: inline-block;
@@ -65,28 +86,48 @@ export default class ScrollSlider extends HTMLElement {
           justify-content: center;
           width: var(--spacing, 3em);
           flex-shrink: 0;
-        } 
+        }
         .label:first-of-type {
-          margin-left: calc(-.5 * var(--spacing, 3em));
+          margin-left: calc(-0.5 * var(--spacing, 3em));
         }
         .label:last-of-type {
-          margin-right: calc(-.5 * var(--spacing, 3em));
+          margin-right: calc(-0.5 * var(--spacing, 3em));
         }
       </style>
-      <div id="crosshair"></div>
-      <div id="container">
-        <div class="padding"></div>
-        <div class="padding"></div>
+      <div id="crosshair">
+        <svg
+          viewBox="0 0 1 1"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+        >
+          <polygon points="0,0 1,0 .5,1" />
+        </svg>
+        <svg
+          viewBox="0 0 1 1"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+        >
+          <polygon points="0,0 1,0 .5,1" />
+        </svg>
+      </div>
+      <div id="scroller">
+        <div id="container">
+          <div class="padding"></div>
+          <div class="padding"></div>
+        </div>
       </div>
     `;
 
     this._valueFunction = x => x;
     this._labelFunction = x => x;
     this._container = this.shadowRoot.querySelector("#container");
+    this._scroller = this.shadowRoot.querySelector("#scroller");
     this._regenerateLabels();
     this._processNumItemsAttribute();
 
-    this._container.addEventListener("scroll", this._onScroll.bind(this));
+    this._scroller.addEventListener("scroll", this._onScroll.bind(this));
   }
 
   attributeChangedCallback() {
@@ -128,19 +169,19 @@ export default class ScrollSlider extends HTMLElement {
 
   _valueForScrollPos(pos) {
     const offset =
-      (pos / (this._container.scrollWidth - this._container.clientWidth)) *
+      (pos / (this._scroller.scrollWidth - this._scroller.clientWidth)) *
       (this._numItems - 1);
     return this._valueFunction(offset);
   }
 
   get value() {
-    return this._valueForScrollPos(this._container.scrollLeft);
+    return this._valueForScrollPos(this._scroller.scrollLeft);
   }
 
   set value(target) {
     // Binary search to find the scroll position that is equivalent
     // to the value provided.
-    const max = this._container.scrollWidth - this._container.clientWidth;
+    const max = this._scroller.scrollWidth - this._scroller.clientWidth;
     let current = max / 2;
     let delta = max / 4;
     while (delta > 1) {
@@ -151,11 +192,11 @@ export default class ScrollSlider extends HTMLElement {
       }
       delta = Math.floor(delta / 2);
     }
-    this._container.scrollTo({ left: current });
+    this._scroller.scrollTo({ left: current });
   }
 
   _processSnapAttribute() {
-    this._container.classList.toggle("snap", this.snap);
+    this._scroller.classList.toggle("snap", this.snap);
   }
 
   _processNumItemsAttribute() {

@@ -3,6 +3,8 @@
 <style>
   :root {
     --black: #222;
+    --dark: #333;
+    --light: #bbb;
     --white: #ddd;
     --foreground: var(--white);
     --background: var(--black);
@@ -25,6 +27,7 @@
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: min-content 1fr repeat(3, min-content);
+    grid-row-gap: 10px;
     align-items: stretch;
     margin: 0 auto;
   }
@@ -81,6 +84,20 @@
   }
   svg #scale {
     transform-origin: 0% 50%;
+  }
+  scroll-slider {
+    --crosshair-color: var(--light);
+    background: var(--dark);
+  }
+  footer {
+    font-size: 0.5rem;
+    padding: 0.2rem;
+    background: var(--dark);
+    display: flex;
+    justify-content: space-between;
+  }
+  a {
+    color: inherit;
   }
 </style>
 <main>
@@ -163,5 +180,19 @@
   <label id="distance">
     <scroll-slider class="slider"></scroll-slider>
   </label>
+  <footer>
+    <span
+      >Source code on
+      <a href="https://github.com/surma/dof-tool" rel="noopener noreferrer"
+        >GitHub</a
+      ></span
+    >
+    <span
+      >Made with 📸 by
+      <a href="https://twitter.com/dassurma" rel="noopener noreferrer"
+        >Surma</a
+      ></span
+    >
+  </footer>
 </main>
 <script src="script.js"></script>
