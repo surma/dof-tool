@@ -21,3 +21,4 @@ async function init() {
   }
   import("./main.js");
 }
+init();

@@ -29,7 +29,7 @@ const dir = ".public";
 export default {
   input: "src/script.js",
   output: {
-    format: "iife",
+    format: "esm",
     dir
   },
   plugins: [

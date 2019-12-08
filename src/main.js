@@ -102,11 +102,33 @@ ows
     // Focal length slider
     ows
       .fromAsyncFunction(async () => {
+        const focals = [
+          1,
+          4,
+          8,
+          11,
+          15,
+          24,
+          35,
+          50,
+          70,
+          85,
+          100,
+          200,
+          300,
+          400,
+          500,
+          600
+        ];
         const { focal } = await idbGetWithDefault("settings", {});
         const focalSlider = document.querySelector("#focalin scroll-slider");
-        focalSlider.valueFunction = v => 7 + 192 ** (v / 9);
+        focalSlider.valueFunction = v => {
+          const left = focals[Math.floor(v)];
+          const right = focals[Math.ceil(v)];
+          return left + (right - left) * (v % 1);
+        };
         focalSlider.labelFunction = v => `${v.toFixed(0)}mm`;
-        focalSlider.numItems = 10;
+        focalSlider.numItems = focals.length;
         focalSlider.style = "--spacing: 5em";
         focalSlider.value = focal || 50;
 
