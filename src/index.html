@@ -26,29 +26,51 @@
     height: 100%;
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: min-content 1fr repeat(3, min-content);
+    grid-template-rows: 1fr repeat(3, min-content);
     grid-row-gap: 10px;
     align-items: stretch;
     margin: 0 auto;
   }
-  main > * {
-    grid-column: 1 / -1;
+  .info {
+    grid-area: 1 / 1 / span 1 / span 1;
+    pointer-events: none;
+    position: relative;
   }
   #factsheet {
     display: grid;
     grid-template-columns: repeat(2, minmax(150px, max-content));
-    padding: 0.4em;
+    padding: 0.4rem;
     background: rgba(0, 0, 0, 0.8);
-    justify-content: center;
-    grid-gap: 0.3em 2em;
+    grid-gap: 0.3rem 2rem;
+    margin: 1rem;
+    place-self: start center;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
   }
   #factsheet .twoline,
   #factsheet .twoline + * {
     grid-column: 1 / span 2;
   }
-  main > .visual {
-    grid-column: auto / span 1;
-    position: relative;
+  #details {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--light);
+    stroke: none;
+    fill: var(--dark);
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+    border: 0;
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+  }
+  #details > svg {
+    margin: 10%;
   }
   .output {
     text-align: right;
@@ -96,12 +118,15 @@
     display: flex;
     justify-content: space-between;
   }
+  footer > * {
+    opacity: 0.5;
+  }
   a {
     color: inherit;
   }
 </style>
 <main>
-  <div id="factsheet">
+  <div id="factsheet" class="info">
     <div>Focal length</div>
     <div class="focal output"></div>
     <div>Aperture</div>
@@ -115,7 +140,7 @@
     <div class="twoline">DoF before + after</div>
     <div class="dof output"></div>
   </div>
-  <div class="visual">
+  <div class="visual info">
     <svg
       viewBox="0 0 1 1"
       version="1.1"
@@ -180,6 +205,13 @@
   <label id="distance">
     <scroll-slider class="slider"></scroll-slider>
   </label>
+  <button id="details">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 219.376 219.376">
+      <path
+        d="M40.63 219.376h138.117c6.617 0 12-5.383 12-12V59.227c0-3.204-1.248-6.217-3.513-8.484L135.869 3.382A11.918 11.918 0 00127.518 0H40.63c-6.617 0-12 5.383-12 12v195.376c0 6.617 5.383 12 12 12zm89.767-195.72l34.968 32.693h-33.863c-.609 0-1.105-.5-1.105-1.114V23.656zM43.63 15h71.768v40.236c0 8.885 7.225 16.114 16.106 16.114h44.244v133.027H43.63V15zm13.261 163.626h106.717v-87H56.891v87zm60.858-71.999h30.858v8.667h-30.858v-8.667zm0 23.667h30.858v9.666h-30.858v-9.666zm0 24.666h30.858v8.667h-30.858v-8.667zm-45.858-48.333h30.858v8.667H71.891v-8.667zm0 23.667h30.858v9.666H71.891v-9.666zm0 24.666h30.858v8.667H71.891v-8.667z"
+      />
+    </svg>
+  </button>
   <footer>
     <span
       >Source code on

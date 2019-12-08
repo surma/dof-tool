@@ -18,6 +18,13 @@ import * as idb from "idb-keyval";
 
 customElements.define("scroll-slider", ScrollSlider);
 
+async function idbGetWithDefault(key, def) {
+  if (!(await idb.keys()).includes(key)) {
+    return def;
+  }
+  return idb.get(key);
+}
+
 function myRound(v) {
   if (v % 1 >= 0.6) {
     return Math.ceil(v);
@@ -82,7 +89,7 @@ ows
     // Aperture slider
     ows
       .fromAsyncFunction(async () => {
-        const { aperture } = (await idb.get("settings")) || {};
+        const { aperture } = await idbGetWithDefault("settings", {});
         const apertureSlider = document.querySelector(
           "#aperture scroll-slider"
         );
@@ -96,7 +103,7 @@ ows
     // Focal length slider
     ows
       .fromAsyncFunction(async () => {
-        const { focal } = (await idb.get("settings")) || {};
+        const { focal } = await idbGetWithDefault("settings", {});
         const focalSlider = document.querySelector("#focalin scroll-slider");
         focalSlider.valueFunction = v => 7 + 192 ** (v / 9);
         focalSlider.labelFunction = v => `${v.toFixed(0)}mm`;
@@ -112,7 +119,7 @@ ows
     // Distance slider
     ows
       .fromAsyncFunction(async () => {
-        const { distance } = (await idb.get("settings")) || {};
+        const { distance } = await idbGetWithDefault("settings", {});
         const distanceSlider = document.querySelector(
           "#distance scroll-slider"
         );
@@ -244,3 +251,44 @@ ows
     })
   )
   .pipeTo(ows.discard());
+
+fromNext(async next => {
+  const showDetails = await idbGetWithDefault("showDetails", false);
+  next(ows.just(showDetails));
+  next(
+    ows.fromEvent(memoizedQuerySelector("#details"), "click").pipeThrough(
+      ows.scan(v => !v),
+      showDetails
+    )
+  );
+})
+  .pipeThrough(concatAll())
+  .pipeThrough(
+    ows.forEach(
+      v => (memoizedQuerySelector("#factsheet").style.opacity = v ? "1" : "0")
+    )
+  )
+  .pipeThrough(ows.debounce(1000))
+  .pipeTo(
+    ows.discard(async v => {
+      await idb.set("showDetails", v);
+    })
+  );
+
+function concatAll(o) {
+  const { readable, writable } = new TransformStream();
+  return {
+    writable: new WritableStream({
+      async write(o) {
+        await o.pipeTo(writable, { preventClose: true });
+      }
+    }),
+    readable
+  };
+}
+
+function fromNext(f) {
+  const { observable, next } = ows.external();
+  f(next);
+  return observable;
+}
