@@ -131,6 +131,7 @@ export default class ScrollSlider extends HTMLElement {
     this._processNumItemsAttribute();
 
     this._scroller.addEventListener("scroll", this._onScroll.bind(this));
+    this._container.addEventListener("click", this._onClick.bind(this));
   }
 
   attributeChangedCallback() {
@@ -187,6 +188,11 @@ export default class ScrollSlider extends HTMLElement {
   }
 
   set value(target) {
+    const left = this._scrollPositionForValue(target);
+    this._scroller.scrollTo({ left });
+  }
+
+  _scrollPositionForValue(target) {
     // Binary search to find the scroll position that is equivalent
     // to the value provided.
     const max = this._scroller.scrollWidth - this._scroller.clientWidth;
@@ -200,7 +206,12 @@ export default class ScrollSlider extends HTMLElement {
       }
       delta = Math.floor(delta / 2);
     }
-    this._scroller.scrollTo({ left: current });
+    return current;
+  }
+
+  animateToValue(target) {
+    const left = this._scrollPositionForValue(target);
+    this._scroller.scrollTo({ left, behavior: "smooth" });
   }
 
   _processSnapAttribute() {
@@ -256,6 +267,15 @@ export default class ScrollSlider extends HTMLElement {
 
   _dispatchInputEvent() {
     this.dispatchEvent(new InputEvent("input"));
+  }
+
+  _onClick(ev) {
+    if (!ev.target.classList.contains("label")) {
+      return;
+    }
+    const idx = this._labels().indexOf(ev.target);
+    const value = this._valueFunction(idx);
+    this.animateToValue(value);
   }
 }
 
