@@ -319,17 +319,18 @@ export function init() {
     )
     .pipeTo(ows.discard());
 
-  fromNext(async next => {
-    const showDetails = await idbGetWithDefault("showDetails", false);
-    next(ows.just(showDetails));
-    next(
-      ows.fromEvent(memoizedQuerySelector("#details"), "click").pipeThrough(
-        ows.scan(v => !v),
-        showDetails
-      )
-    );
-  })
-    .pipeThrough(concatAll())
+  ows
+    .fromNext(async next => {
+      const showDetails = await idbGetWithDefault("showDetails", false);
+      next(ows.just(showDetails));
+      next(
+        ows.fromEvent(memoizedQuerySelector("#details"), "click").pipeThrough(
+          ows.scan(v => !v),
+          showDetails
+        )
+      );
+    })
+    .pipeThrough(ows.concatAll())
     .pipeThrough(
       ows.forEach(
         v => (memoizedQuerySelector("#factsheet").style.opacity = v ? "1" : "0")
@@ -341,22 +342,4 @@ export function init() {
         await idb.set("showDetails", v);
       })
     );
-}
-
-function concatAll(o) {
-  const { readable, writable } = new TransformStream();
-  return {
-    writable: new WritableStream({
-      async write(o) {
-        await o.pipeTo(writable, { preventClose: true });
-      }
-    }),
-    readable
-  };
-}
-
-function fromNext(f) {
-  const { observable, next } = ows.external();
-  f(next);
-  return observable;
 }
