@@ -78,6 +78,12 @@ function bankNoteSequence(v) {
   return [1, 2, 5][v % 3] * 10 ** Math.floor(v / 3);
 }
 
+function transitionEnd(el) {
+  return new Promise(resolve =>
+    el.addEventListener("transitionend", resolve, { once: true })
+  );
+}
+
 async function idbGetWithDefault(key, def) {
   if (!(await idb.keys()).includes(key)) {
     return def;
@@ -324,10 +330,14 @@ export function init() {
       const showDetails = await idbGetWithDefault("showDetails", false);
       next(ows.just(showDetails));
       next(
-        ows.fromEvent(memoizedQuerySelector("#details"), "click").pipeThrough(
-          ows.scan(v => !v),
-          showDetails
-        )
+        ows
+          .merge(
+            ows.fromEvent(memoizedQuerySelector("#details"), "click"),
+            ows
+              .fromEvent(document, "keypress")
+              .pipeThrough(ows.filter(ev => ev.key === " "))
+          )
+          .pipeThrough(ows.scan(v => !v, showDetails))
       );
     })
     .pipeThrough(ows.concatAll())
@@ -341,5 +351,16 @@ export function init() {
       ows.discard(async v => {
         await idb.set("showDetails", v);
       })
+    );
+
+  ows
+    .fromEvent(document, "keypress")
+    .pipeThrough(ows.filter(ev => ev.key === "?"))
+    .pipeThrough(ows.scan(v => !v, false))
+    .pipeTo(
+      ows.discard(
+        async v =>
+          (memoizedQuerySelector("#help").style.opacity = v ? "1" : "0")
+      )
     );
 }

@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link
+  href="https://fonts.googleapis.com/css?family=Roboto&display=swap"
+  rel="stylesheet"
+/>
 <style>
   :root {
     --black: #222;
@@ -18,7 +22,7 @@
     padding: 0;
     background: var(--background);
     color: var(--foreground);
-    font-family: Arial;
+    font-family: Roboto;
     font-size: 24px;
     height: 100%;
   }
@@ -47,6 +51,7 @@
     z-index: 1;
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
+    will-change: transform;
   }
   #factsheet .twoline,
   #factsheet .twoline + * {
@@ -125,8 +130,34 @@
   a {
     color: inherit;
   }
+  #help {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    justify-content: center;
+    align-content: start;
+    background-color: rgba(0, 0, 0, 0.8);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    z-index: 2;
+    padding: 10px;
+  }
+  #help dt {
+    font-family: monospace;
+    text-align: right;
+  }
 </style>
 <main>
+  <dl id="help">
+    <dt>?</dt>
+    <dd>Show/hide this help</dd>
+    <dt>Space</dt>
+    <dd>Show/hide value form</dd>
+  </dl>
   <div id="factsheet" class="info">
     <div>Focal length</div>
     <div class="focal output"></div>
