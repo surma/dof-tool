@@ -380,7 +380,7 @@ export function init() {
             ows.fromEvent(memoizedQuerySelector("#details"), "click"),
             ows
               .fromEvent(document, "keypress")
-              .pipeThrough(ows.filter(ev => ev.key === " "))
+              .pipeThrough(ows.filter(ev => ev.key === "D"))
           )
           .pipeThrough(ows.scan(v => !v, showDetails))
       );
