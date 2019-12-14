@@ -79,10 +79,35 @@ const sensors = {
     height: 24,
     coc: 0.0291
   },
+  "APS-H (Canon)": {
+    width: 28.7,
+    height: 19.0,
+    coc: 0.023
+  },
+  "APS-C (Nikon/Pentax/Sony)": {
+    width: 23.6,
+    height: 15.7,
+    coc: 0.019
+  },
+  "APS-C (Canon)": {
+    width: 22.2,
+    height: 14.8,
+    coc: 0.018
+  },
   "APS-C": {
     width: 22.5,
     height: 15,
     coc: 0.018
+  },
+  '4/3"': {
+    width: 18,
+    height: 13.5,
+    coc: 0.015
+  },
+  '1"': {
+    width: 13.2,
+    height: 8.8,
+    coc: 0.011
   }
 };
 
