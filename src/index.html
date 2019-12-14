@@ -35,9 +35,12 @@
     align-items: stretch;
     margin: 0 auto;
   }
+  .hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
   .info {
     grid-area: 1 / 1 / span 1 / span 1;
-    pointer-events: none;
     position: relative;
   }
   #factsheet {
@@ -49,7 +52,6 @@
     margin: 1rem;
     place-self: start center;
     z-index: 1;
-    opacity: 0;
     transition: opacity 0.3s ease-in-out;
     will-change: transform;
   }
@@ -141,7 +143,6 @@
     justify-content: center;
     align-content: start;
     background-color: rgba(0, 0, 0, 0.8);
-    opacity: 0;
     transition: opacity 0.3s ease-in-out;
     z-index: 2;
     padding: 10px;
@@ -153,15 +154,21 @@
   }
 </style>
 <main>
-  <dl id="help">
+  <dl id="help" class="hidden">
     <dt>?</dt>
     <dd>Show/hide this help</dd>
     <dt>Space</dt>
     <dd>Show/hide value form</dd>
   </dl>
-  <div id="factsheet" class="info">
-    <div>Focal length</div>
+  <div id="factsheet" class="info hidden">
+    <div>Sensor</div>
+    <select id="sensor"> </select>
+    <div>Lens focal length</div>
     <div class="focal output"></div>
+    <div>Crop factor</div>
+    <div class="crop output"></div>
+    <div>Effective focal length</div>
+    <div class="efocal output"></div>
     <div>Aperture</div>
     <div class="aperture output"></div>
     <div>Distance</div>

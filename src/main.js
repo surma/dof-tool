@@ -73,6 +73,19 @@ const apertures = [
   32
 ];
 
+const sensors = {
+  "Full-Frame": {
+    width: 36,
+    height: 24,
+    coc: 0.0291
+  },
+  "APS-C": {
+    width: 22.5,
+    height: 15,
+    coc: 0.018
+  }
+};
+
 // 1, 2, 5, 10, 20, 50, 100, 200, 500, ...
 function bankNoteSequence(v) {
   return [1, 2, 5][v % 3] * 10 ** Math.floor(v / 3);
@@ -137,11 +150,34 @@ export function init() {
   ows
     .combineLatest(
       // Sensor
-      ows.just({
-        width: 36,
-        height: 24,
-        coc: 0.0291
-      }),
+      ows
+        .fromAsyncFunction(async () => {
+          const { sensor } = await idbGetWithDefault("settings", {});
+          for (const sensorName of Object.keys(sensors)) {
+            const option = document.createElement("option");
+            option.value = sensorName;
+            option.textContent = sensorName;
+            memoizedQuerySelector("#sensor").appendChild(option);
+          }
+          if (sensor && sensor.name) {
+            const sensorIdx = [
+              ...memoizedQuerySelector("#sensor").children
+            ].findIndex(option => option.value === sensor.name);
+            memoizedQuerySelector("#sensor").selectedIndex = sensorIdx;
+          }
+          return fromInput(memoizedQuerySelector("#sensor")).pipeThrough(
+            ows.map(name => ({ name, ...sensors[name] }))
+          );
+        })
+        .pipeThrough(ows.switchAll())
+        .pipeThrough(
+          ows.map(sensor => ({
+            ...sensor,
+            cropFactor:
+              Math.sqrt(36 ** 2 + 24 ** 2) /
+              Math.sqrt(sensor.width ** 2 + sensor.height ** 2)
+          }))
+        ),
       // Aperture slider
       ows
         .fromAsyncFunction(async () => {
@@ -298,6 +334,15 @@ export function init() {
         memoizedQuerySelectorAll(".focal").forEach(
           el => (el.textContent = `${data.focal.toFixed(0)}mm`)
         );
+        memoizedQuerySelectorAll(".crop").forEach(
+          el => (el.textContent = `${data.sensor.cropFactor.toFixed(1)}x`)
+        );
+        memoizedQuerySelectorAll(".efocal").forEach(
+          el =>
+            (el.textContent = `${(data.focal * data.sensor.cropFactor).toFixed(
+              0
+            )}mm`)
+        );
         memoizedQuerySelectorAll(".hyperfocal").forEach(
           el => (el.textContent = formatDistance(data.hyperfocal))
         );
@@ -319,8 +364,8 @@ export function init() {
     )
     .pipeThrough(ows.debounce(500))
     .pipeThrough(
-      ows.forEach(async ({ distance, focal, aperture }) => {
-        await idb.set("settings", { aperture, distance, focal });
+      ows.forEach(async ({ distance, focal, aperture, sensor }) => {
+        await idb.set("settings", { aperture, distance, focal, sensor });
       })
     )
     .pipeTo(ows.discard());
@@ -342,8 +387,8 @@ export function init() {
     })
     .pipeThrough(ows.concatAll())
     .pipeThrough(
-      ows.forEach(
-        v => (memoizedQuerySelector("#factsheet").style.opacity = v ? "1" : "0")
+      ows.forEach(v =>
+        memoizedQuerySelector("#factsheet").classList.toggle("hidden", v)
       )
     )
     .pipeThrough(ows.debounce(1000))
@@ -358,9 +403,8 @@ export function init() {
     .pipeThrough(ows.filter(ev => ev.key === "?"))
     .pipeThrough(ows.scan(v => !v, false))
     .pipeTo(
-      ows.discard(
-        async v =>
-          (memoizedQuerySelector("#help").style.opacity = v ? "1" : "0")
+      ows.discard(async v =>
+        memoizedQuerySelector("#help").classList.toggle("hidden", v)
       )
     );
 }
