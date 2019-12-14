@@ -76,50 +76,37 @@ const apertures = [
 const sensors = {
   "Full-Frame": {
     width: 36,
-    height: 24,
-    coc: 0.0291
+    height: 24
   },
   "APS-H (Canon)": {
     width: 28.7,
-    height: 19.0,
-    coc: 0.023
+    height: 19.0
   },
   "APS-C (Nikon/Pentax/Sony)": {
     width: 23.6,
-    height: 15.7,
-    coc: 0.019
+    height: 15.7
   },
   "APS-C (Canon)": {
     width: 22.2,
-    height: 14.8,
-    coc: 0.018
+    height: 14.8
   },
   "APS-C": {
     width: 22.5,
-    height: 15,
-    coc: 0.018
+    height: 15
   },
   '4/3"': {
     width: 18,
-    height: 13.5,
-    coc: 0.015
+    height: 13.5
   },
   '1"': {
     width: 13.2,
-    height: 8.8,
-    coc: 0.011
+    height: 8.8
   }
 };
 
 // 1, 2, 5, 10, 20, 50, 100, 200, 500, ...
 function bankNoteSequence(v) {
   return [1, 2, 5][v % 3] * 10 ** Math.floor(v / 3);
-}
-
-function transitionEnd(el) {
-  return new Promise(resolve =>
-    el.addEventListener("transitionend", resolve, { once: true })
-  );
 }
 
 async function idbGetWithDefault(key, def) {
@@ -198,6 +185,7 @@ export function init() {
         .pipeThrough(
           ows.map(sensor => ({
             ...sensor,
+            coc: Math.sqrt(sensor.width ** 2 + sensor.height ** 2) / 1500,
             cropFactor:
               Math.sqrt(36 ** 2 + 24 ** 2) /
               Math.sqrt(sensor.width ** 2 + sensor.height ** 2)
