@@ -13,9 +13,11 @@
 
 import * as ows from "observables-with-streams";
 import ScrollSlider from "./scroll-slider.js";
+import ToggleSwitch from "./toggle-switch.js";
 import * as idb from "idb-keyval";
 
 customElements.define("scroll-slider", ScrollSlider);
+customElements.define("toggle-switch", ToggleSwitch);
 
 const focals = [
   1,

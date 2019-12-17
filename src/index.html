@@ -163,6 +163,10 @@
     font-family: monospace;
     text-align: right;
   }
+  toggle-switch {
+    --switch-background: var(--dark);
+    --switch-button: var(--foreground);
+  }
 </style>
 <main>
   <dl id="help" class="hidden">
@@ -174,10 +178,11 @@
   <div id="factsheet" class="info hidden">
     <label>Sensor</label>
     <select id="sensor" class="input"> </select>
-    <label class="span2">
-      <input type="checkbox" id="advcoc" />
-      Calculate pixel-based CoC
-    </label>
+    <label class="span2">Circle of Confusion</label>
+    <toggle-switch class="span2 input" id="advcoc">
+      <span slot="left">Traditional</span>
+      <span slot="right">Pixel-peeping</span>
+    </toggle-switch>
     <label class="advcoc">Megapixels</label>
     <input
       type="number"
