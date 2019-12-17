@@ -35,6 +35,9 @@
     align-items: stretch;
     margin: 0 auto;
   }
+  .disabled {
+    display: none;
+  }
   .hidden {
     opacity: 0;
     pointer-events: none;
@@ -55,9 +58,14 @@
     transition: opacity 0.3s ease-in-out;
     will-change: transform;
   }
+  #factsheet .span2,
   #factsheet .twoline,
   #factsheet .twoline + * {
     grid-column: 1 / span 2;
+  }
+  #factsheet label {
+    font-size: 0.8rem;
+    align-self: center;
   }
   #details {
     position: absolute;
@@ -80,8 +88,11 @@
     width: 100%;
     margin: 10%;
   }
+  .input {
+    justify-self: right;
+  }
   .output {
-    text-align: right;
+    justify-self: right;
   }
   .visual > svg {
     position: absolute;
@@ -161,23 +172,35 @@
     <dd>Show/hide value form</dd>
   </dl>
   <div id="factsheet" class="info hidden">
-    <div>Sensor</div>
-    <select id="sensor"> </select>
-    <div>Lens focal length</div>
+    <label>Sensor</label>
+    <select id="sensor" class="input"> </select>
+    <label class="span2">
+      <input type="checkbox" id="advcoc" />
+      Calculate pixel-based CoC
+    </label>
+    <label class="advcoc">Megapixels</label>
+    <input
+      type="number"
+      class="advcoc input"
+      id="megapixel"
+      value="30"
+      step="0.1"
+    />
+    <label>Lens focal length</label>
     <div class="focal output"></div>
-    <div>Crop factor</div>
+    <label>Crop factor</label>
     <div class="crop output"></div>
-    <div>Effective focal length</div>
+    <label>Effective focal length</label>
     <div class="efocal output"></div>
-    <div>Aperture</div>
+    <label>Aperture</label>
     <div class="aperture output"></div>
-    <div>Distance</div>
+    <label>Distance</label>
     <div class="distance output"></div>
-    <div>Hyperfocal</div>
+    <label>Hyperfocal</label>
     <div class="hyperfocal output"></div>
-    <div>Horizontal FoV</div>
+    <label>Horizontal FoV</label>
     <div class="hfov output"></div>
-    <div class="twoline">DoF before + after</div>
+    <label class="twoline">DoF before + after</label>
     <div class="dof output"></div>
   </div>
   <div class="visual info">

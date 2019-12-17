@@ -138,6 +138,13 @@ export function fromInput(el) {
   return observable;
 }
 
+export function fromCheckbox(el) {
+  const { next, observable } = ows.external();
+  el.addEventListener("change", () => next(el.checked));
+  next(el.checked);
+  return observable;
+}
+
 export function fromChange(el) {
   const { next, observable } = ows.external();
   el.addEventListener("change", () => next(el.value));
@@ -190,6 +197,25 @@ export function init() {
               Math.sqrt(36 ** 2 + 24 ** 2) /
               Math.sqrt(sensor.width ** 2 + sensor.height ** 2)
           }))
+        )
+        .pipeThrough(
+          ows.combineLatestWith(
+            fromInput(memoizedQuerySelector("#megapixel")),
+            fromCheckbox(memoizedQuerySelector("#advcoc"))
+          )
+        )
+        .pipeThrough(
+          ows.map(([sensor, megapixel, shouldMerge]) => {
+            if (!shouldMerge) {
+              return sensor;
+            }
+            const numPixelsPerRow = Math.sqrt((3 / 2) * megapixel * 1000000);
+            const pixelSize = 36 / numPixelsPerRow;
+            return {
+              ...sensor,
+              coc: pixelSize
+            };
+          })
         ),
       // Aperture slider
       ows
@@ -420,4 +446,21 @@ export function init() {
         memoizedQuerySelector("#help").classList.toggle("hidden", v)
       )
     );
+
+  ows
+    .fromAsyncFunction(async () => {
+      const advcoc = await idb.get("advcoc");
+      memoizedQuerySelector("#advcoc").checked = advcoc;
+      return fromCheckbox(memoizedQuerySelector("#advcoc"));
+    })
+    .pipeThrough(ows.switchAll())
+    .pipeThrough(
+      ows.forEach(showAdvancedCoC => {
+        memoizedQuerySelectorAll(".advcoc").forEach(el =>
+          el.classList.toggle("disabled", !showAdvancedCoC)
+        );
+      })
+    )
+    .pipeThrough(ows.debounce(1000))
+    .pipeTo(ows.discard(v => idb.set("advcoc", v)));
 }
