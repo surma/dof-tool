@@ -268,8 +268,7 @@ export function init() {
           slider.valueFunction = v => {
             const left = apertures[Math.floor(v)];
             const right = apertures[Math.ceil(v)];
-            const interpolated = left + (right - left) * (v % 1);
-            return Number(interpolated.toFixed(1));
+            return left + (right - left) * (v % 1);
           };
           slider.labelFunction = v => `f/${v.toFixed(1)}`;
           slider.numItems = apertures.length;
@@ -338,6 +337,20 @@ export function init() {
         };
       })
     )
+    // Zoom view
+    .pipeThrough(
+      ows.forEach(({ distance }) => {
+        memoizedQuerySelector("svg").setAttribute(
+          "viewBox",
+          `0 -50 ${Math.max((distance * 1.1 + 300 + 200 + 200) / 10, 100)} 100`
+        );
+        memoizedQuerySelector("#world").setAttribute(
+          "transform",
+          `translate(${distance / 10}, 0)`
+        );
+      })
+    )
+    // Move focus planes
     .pipeThrough(
       ows.forEach(({ nearFocusPlane, farFocusPlane, distance }) => {
         memoizedQuerySelector("#nearFocusPlane").setAttribute(
@@ -358,6 +371,7 @@ export function init() {
         );
       })
     )
+    // Adjust view cone
     .pipeThrough(
       ows.forEach(({ horizontalFoV }) => {
         const deg = (horizontalFoV * 360) / (2 * Math.PI);
@@ -381,18 +395,7 @@ export function init() {
           2}deg)`;
       })
     )
-    .pipeThrough(
-      ows.forEach(({ distance }) => {
-        memoizedQuerySelector("svg").setAttribute(
-          "viewBox",
-          `0 -50 ${Math.max((distance * 1.1 + 300 + 200 + 200) / 10, 100)} 100`
-        );
-        memoizedQuerySelector("#world").setAttribute(
-          "transform",
-          `translate(${distance / 10}, 0)`
-        );
-      })
-    )
+    // Set numeric outputs
     .pipeThrough(
       ows.forEach(data => {
         memoizedQuerySelectorAll(".focal").forEach(
@@ -414,7 +417,7 @@ export function init() {
           el => (el.textContent = formatDistance(data.distance))
         );
         memoizedQuerySelectorAll(".aperture").forEach(
-          el => (el.textContent = `f/${data.aperture}`)
+          el => (el.textContent = `f/${data.aperture.toFixed(1)}`)
         );
         const dofBefore = data.distance - data.nearFocusPlane;
         let dofAfter = data.farFocusPlane - data.distance;
