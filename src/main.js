@@ -268,7 +268,8 @@ export function init() {
           slider.valueFunction = v => {
             const left = apertures[Math.floor(v)];
             const right = apertures[Math.ceil(v)];
-            return left + (right - left) * (v % 1);
+            const interpolated = left + (right - left) * (v % 1);
+            return Number(interpolated.toFixed(1));
           };
           slider.labelFunction = v => `f/${v.toFixed(1)}`;
           slider.numItems = apertures.length;
