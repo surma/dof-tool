@@ -152,6 +152,16 @@ export function fromChange(el) {
   return observable;
 }
 
+export function tee(f) {
+  const { readable, writable } = new TransformStream();
+  const [rs1, rs2] = readable.tee();
+  f(rs2);
+  return {
+    writable,
+    readable: rs1
+  };
+}
+
 function formatDistance(v, decimals = true) {
   if (v < 0 || !Number.isFinite(v)) {
     return "∞";
@@ -165,13 +175,47 @@ function formatDistance(v, decimals = true) {
   return `${decimals ? (v / 1000).toFixed(2) : (v / 1000).toFixed(0)}m`;
 }
 
+function idbInput(el, key, def) {
+  return ows
+    .fromAsyncFunction(async () => {
+      const v = await idbGetWithDefault(key, def);
+      el.value = v;
+      return fromInput(el);
+    })
+    .pipeThrough(ows.switchAll())
+    .pipeThrough(
+      tee(o => {
+        o.pipeThrough(ows.debounce(1000)).pipeTo(
+          ows.discard(v => idb.set(key, v))
+        );
+      })
+    );
+}
+
+function idbCheckbox(el, key, def) {
+  return ows
+    .fromAsyncFunction(async () => {
+      const v = await idbGetWithDefault(key, def);
+      el.checked = v;
+      return fromCheckbox(el);
+    })
+    .pipeThrough(ows.switchAll())
+    .pipeThrough(
+      tee(o => {
+        o.pipeThrough(ows.debounce(1000)).pipeTo(
+          ows.discard(v => idb.set(key, v))
+        );
+      })
+    );
+}
+
 export function init() {
   ows
     .combineLatest(
       // Sensor
       ows
         .fromAsyncFunction(async () => {
-          const { sensor } = await idbGetWithDefault("settings", {});
+          const sensor = await idbGetWithDefault("sensor", {});
           for (const sensorName of Object.keys(sensors)) {
             const option = document.createElement("option");
             option.value = sensorName;
@@ -220,97 +264,77 @@ export function init() {
       // Aperture slider
       ows
         .fromAsyncFunction(async () => {
-          const { aperture } = await idbGetWithDefault("settings", {});
-          const apertureSlider = document.querySelector(
-            "#aperture scroll-slider"
-          );
-          apertureSlider.valueFunction = v => {
+          const slider = memoizedQuerySelector("#aperture scroll-slider");
+          slider.valueFunction = v => {
             const left = apertures[Math.floor(v)];
             const right = apertures[Math.ceil(v)];
             return left + (right - left) * (v % 1);
           };
-          apertureSlider.labelFunction = v => `f/${v.toFixed(1)}`;
-          apertureSlider.numItems = apertures.length;
-          apertureSlider.value = aperture || 2.8;
-          return fromInput(apertureSlider).pipeThrough(ows.distinct());
+          slider.labelFunction = v => `f/${v.toFixed(1)}`;
+          slider.numItems = apertures.length;
+          return idbInput(slider, "aperture", 2.8).pipeThrough(ows.distinct());
         })
         .pipeThrough(ows.switchAll()),
       // Focal length slider
       ows
         .fromAsyncFunction(async () => {
-          const { focal } = await idbGetWithDefault("settings", {});
-          const focalSlider = document.querySelector("#focalin scroll-slider");
-          focalSlider.valueFunction = v => {
+          const slider = document.querySelector("#focalin scroll-slider");
+          slider.valueFunction = v => {
             const left = focals[Math.floor(v)];
             const right = focals[Math.ceil(v)];
             return left + (right - left) * (v % 1);
           };
-          focalSlider.labelFunction = v => `${v.toFixed(0)}mm`;
-          focalSlider.numItems = focals.length;
-          focalSlider.style = "--spacing: 5em";
-          focalSlider.value = focal || 50;
+          slider.labelFunction = v => `${v.toFixed(0)}mm`;
+          slider.numItems = focals.length;
+          slider.style = "--spacing: 5em";
 
-          return fromInput(focalSlider)
-            .pipeThrough(ows.map(v => Number(v)))
-            .pipeThrough(ows.distinct());
+          return idbInput(slider, "focal", 50).pipeThrough(ows.distinct());
         })
         .pipeThrough(ows.switchAll()),
       // Distance slider
       ows
         .fromAsyncFunction(async () => {
-          const { distance } = await idbGetWithDefault("settings", {});
-          const distanceSlider = document.querySelector(
-            "#distance scroll-slider"
-          );
-          distanceSlider.valueFunction = v => {
+          const slider = document.querySelector("#distance scroll-slider");
+          slider.valueFunction = v => {
             const left = bankNoteSequence(Math.floor(v));
             const right = bankNoteSequence(Math.ceil(v));
             return left + (right - left) * (v % 1);
           };
-          distanceSlider.labelFunction = v => formatDistance(v, false);
-          distanceSlider.numItems = 16;
-          distanceSlider.style = "--spacing: 5em";
-          distanceSlider.value = distance || 1000;
+          slider.labelFunction = v => formatDistance(v, false);
+          slider.numItems = 16;
+          slider.style = "--spacing: 5em";
 
-          return fromInput(distanceSlider).pipeThrough(ows.distinct());
+          return idbInput(slider, "distance", 1000).pipeThrough(ows.distinct());
         })
         .pipeThrough(ows.switchAll())
     )
     .pipeThrough(
-      ows.map(([sensor, aperture, focal, distance]) => ({
-        sensor,
-        aperture,
-        focal,
-        distance
-      }))
-    )
-    .pipeThrough(
-      ows.map(data => {
-        const { aperture, focal, sensor } = data;
+      ows.map(([sensor, aperture, focal, distance]) => {
         const hyperfocal = focal ** 2 / (aperture * sensor.coc) + focal;
         const horizontalFoV = 2 * Math.atan(sensor.width / (2 * focal));
         const verticalFoV = 2 * Math.atan(sensor.height / (2 * focal));
-        return { ...data, hyperfocal, horizontalFoV, verticalFoV };
-      })
-    )
-    .pipeThrough(
-      ows.map(data => {
-        const { distance, focal, hyperfocal } = data;
         const nearFocusPlane =
           (distance * (hyperfocal - focal)) /
           (hyperfocal + distance - 2 * focal);
         const farFocusPlane =
           (distance * (hyperfocal - focal)) / (hyperfocal - distance);
-        return { ...data, farFocusPlane, nearFocusPlane };
-      })
-    )
-    .pipeThrough(
-      ows.map(data => {
-        const { distance, nearFocusPlane, farFocusPlane } = data;
         const dofNear = distance - nearFocusPlane;
         const dofFar = farFocusPlane - distance;
         const totalDof = dofNear + dofFar;
-        return { ...data, dofNear, dofFar, totalDof };
+        return {
+          sensor,
+          aperture,
+          focal,
+          distance,
+          hyperfocal,
+          horizontalFoV,
+          verticalFoV,
+          nearFocusPlane,
+          farFocusPlane,
+          dofNear,
+          dofFar,
+          totalDof
+        };
       })
     )
     .pipeThrough(
@@ -401,12 +425,6 @@ export function init() {
         );
       })
     )
-    .pipeThrough(ows.debounce(500))
-    .pipeThrough(
-      ows.forEach(async ({ distance, focal, aperture, sensor }) => {
-        await idb.set("settings", { aperture, distance, focal, sensor });
-      })
-    )
     .pipeTo(ows.discard());
 
   ows
@@ -420,14 +438,18 @@ export function init() {
             ows
               .fromEvent(document, "keypress")
               .pipeThrough(ows.filter(ev => ev.key === "D"))
+              .pipeThrough(ows.forEach(ev => ev.preventDefault()))
           )
           .pipeThrough(ows.scan(v => !v, showDetails))
       );
     })
     .pipeThrough(ows.concatAll())
     .pipeThrough(
-      ows.forEach(v =>
-        memoizedQuerySelector("#factsheet").classList.toggle("hidden", v)
+      ows.forEach(showDetails =>
+        memoizedQuerySelector("#factsheet").classList.toggle(
+          "hidden",
+          !showDetails
+        )
       )
     )
     .pipeThrough(ows.debounce(1000))
@@ -440,6 +462,7 @@ export function init() {
   ows
     .fromEvent(document, "keypress")
     .pipeThrough(ows.filter(ev => ev.key === "?"))
+    .pipeThrough(ows.forEach(ev => ev.preventDefault()))
     .pipeThrough(ows.scan(v => !v, false))
     .pipeTo(
       ows.discard(async v =>
@@ -447,20 +470,11 @@ export function init() {
       )
     );
 
-  ows
-    .fromAsyncFunction(async () => {
-      const advcoc = await idb.get("advcoc");
-      memoizedQuerySelector("#advcoc").checked = advcoc;
-      return fromCheckbox(memoizedQuerySelector("#advcoc"));
+  idbCheckbox(memoizedQuerySelector("#advcoc"), "advcoc", false).pipeTo(
+    ows.discard(showAdvancedCoC => {
+      memoizedQuerySelectorAll(".advcoc").forEach(el =>
+        el.classList.toggle("disabled", !showAdvancedCoC)
+      );
     })
-    .pipeThrough(ows.switchAll())
-    .pipeThrough(
-      ows.forEach(showAdvancedCoC => {
-        memoizedQuerySelectorAll(".advcoc").forEach(el =>
-          el.classList.toggle("disabled", !showAdvancedCoC)
-        );
-      })
-    )
-    .pipeThrough(ows.debounce(1000))
-    .pipeTo(ows.discard(v => idb.set("advcoc", v)));
+  );
 }
