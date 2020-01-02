@@ -404,13 +404,10 @@ export function init() {
           el => (el.textContent = `${data.focal.toFixed(0)}mm`)
         );
         memoizedQuerySelectorAll(".crop").forEach(
-          el => (el.textContent = `${data.sensor.cropFactor.toFixed(1)}x`)
-        );
-        memoizedQuerySelectorAll(".efocal").forEach(
           el =>
             (el.textContent = `${(data.focal * data.sensor.cropFactor).toFixed(
               0
-            )}mm`)
+            )}mm (${data.sensor.cropFactor.toFixed(1)}x)`)
         );
         memoizedQuerySelectorAll(".hyperfocal").forEach(
           el => (el.textContent = formatDistance(data.hyperfocal))
