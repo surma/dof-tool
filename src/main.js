@@ -246,7 +246,7 @@ export function init() {
         )
         .pipeThrough(
           ows.combineLatestWith(
-            fromInput(memoizedQuerySelector("#megapixel")),
+            idbInput(memoizedQuerySelector("#megapixel"), "megapixel", 30),
             fromCheckbox(memoizedQuerySelector("#advcoc"))
           )
         )
