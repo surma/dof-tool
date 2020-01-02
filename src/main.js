@@ -446,11 +446,13 @@ export function init() {
       next(
         ows
           .merge(
-            ows.fromEvent(memoizedQuerySelector("#details"), "click"),
             ows
               .fromEvent(document, "keypress")
               .pipeThrough(ows.filter(ev => ev.key === "D"))
-              .pipeThrough(ows.forEach(ev => ev.preventDefault()))
+              .pipeThrough(ows.forEach(ev => ev.preventDefault())),
+            ...memoizedQuerySelectorAll(".opendetails").map(el =>
+              ows.fromEvent(el, "click")
+            )
           )
           .pipeThrough(ows.scan(v => !v, showDetails))
       );
@@ -472,14 +474,21 @@ export function init() {
     );
 
   ows
-    .fromEvent(document, "keypress")
-    .pipeThrough(ows.filter(ev => ev.key === "?"))
-    .pipeThrough(ows.forEach(ev => ev.preventDefault()))
+    .merge(
+      ows
+        .fromEvent(document, "keypress")
+        .pipeThrough(ows.filter(ev => ev.key === "?"))
+        .pipeThrough(ows.forEach(ev => ev.preventDefault())),
+      ...memoizedQuerySelectorAll(".openhelp").map(el =>
+        ows.fromEvent(el, "click")
+      )
+    )
     .pipeThrough(ows.scan(v => !v, false))
     .pipeTo(
-      ows.discard(async v =>
-        memoizedQuerySelector("#help").classList.toggle("hidden", v)
-      )
+      ows.discard(async v => {
+        console.log(v);
+        memoizedQuerySelector("#help").classList.toggle("hidden", v);
+      })
     );
 
   idbCheckbox(memoizedQuerySelector("#advcoc"), "advcoc", false).pipeTo(

@@ -150,7 +150,9 @@
     right: 10px;
     bottom: 10px;
     display: grid;
-    grid-template-columns: repeat(2, max-content);
+    grid-gap: 0.5em 1em;
+    align-items: center;
+    grid-template-columns: auto max-content;
     justify-content: center;
     align-content: start;
     background-color: rgba(0, 0, 0, 0.8);
@@ -163,17 +165,28 @@
     font-family: monospace;
     text-align: right;
   }
+  #help dd {
+    margin: 0;
+  }
   toggle-switch {
     --switch-background: var(--dark);
     --switch-button: var(--foreground);
+  }
+  footer button {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background: initial;
+    color: inherit;
+    text-decoration: underline;
   }
 </style>
 <main>
   <dl id="help" class="hidden">
     <dt>?</dt>
     <dd>Show/hide this help</dd>
-    <dt>Shift + D</dt>
-    <dd>Show/hide value form</dd>
+    <dt>Shift + D<br />or the grey button</dt>
+    <dd>Show/hide details sheet</dd>
   </dl>
   <div id="factsheet" class="info hidden">
     <label>Sensor</label>
@@ -271,7 +284,7 @@
   <label id="distance">
     <scroll-slider class="slider"></scroll-slider>
   </label>
-  <button id="details">
+  <button id="details" class="opendetails">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 219.376 219.376">
       <path
         d="M40.63 219.376h138.117c6.617 0 12-5.383 12-12V59.227c0-3.204-1.248-6.217-3.513-8.484L135.869 3.382A11.918 11.918 0 00127.518 0H40.63c-6.617 0-12 5.383-12 12v195.376c0 6.617 5.383 12 12 12zm89.767-195.72l34.968 32.693h-33.863c-.609 0-1.105-.5-1.105-1.114V23.656zM43.63 15h71.768v40.236c0 8.885 7.225 16.114 16.106 16.114h44.244v133.027H43.63V15zm13.261 163.626h106.717v-87H56.891v87zm60.858-71.999h30.858v8.667h-30.858v-8.667zm0 23.667h30.858v9.666h-30.858v-9.666zm0 24.666h30.858v8.667h-30.858v-8.667zm-45.858-48.333h30.858v8.667H71.891v-8.667zm0 23.667h30.858v9.666H71.891v-9.666zm0 24.666h30.858v8.667H71.891v-8.667z"
@@ -279,15 +292,18 @@
     </svg>
   </button>
   <footer>
-    <span
-      >Source code on
+    <span>
+      Show
+      <button class="opendetails">details</button>, show
+      <button class="openhelp">help</button>, source code on
       <a
         href="https://github.com/surma/dof-tool"
         target="_blank"
         rel="noopener noreferrer"
-        >GitHub</a
-      ></span
-    >
+      >
+        GitHub </a
+      >.
+    </span>
     <span
       >Made with 📸 by
       <a
