@@ -375,10 +375,16 @@ export function init() {
     )
     // Adjust view cone
     .pipeThrough(
-      ows.forEach(({ horizontalFoV }) => {
-        const deg = (horizontalFoV * 360) / (2 * Math.PI);
-        memoizedQuerySelectorAll(".hfov").forEach(
-          el => (el.textContent = `${deg.toFixed(0)}°`)
+      ows.forEach(({ horizontalFoV, verticalFoV, distance }) => {
+        const hDeg = (horizontalFoV * 360) / (2 * Math.PI);
+        const vDeg = (verticalFoV * 360) / (2 * Math.PI);
+        memoizedQuerySelectorAll(".fov").forEach(
+          el =>
+            (el.textContent = `H∢: ${hDeg.toFixed(0)}° V∢: ${vDeg.toFixed(0)}°`)
+        );
+        const width = distance * Math.atan(horizontalFoV);
+        memoizedQuerySelectorAll(".wdof").forEach(
+          el => (el.textContent = formatDistance(width))
         );
         const r = 38;
         const x1 = 30 + Math.cos(-horizontalFoV / 2) * r;
@@ -389,11 +395,11 @@ export function init() {
           .querySelector("#fov-arc")
           .setAttribute(
             "d",
-            `M ${x1},${y1} A ${r},${r},${deg},0,1,${x2},${y2}`
+            `M ${x1},${y1} A ${r},${r},${hDeg},0,1,${x2},${y2}`
           );
-        memoizedQuerySelector("#fov1").style.transform = `rotate(${(-1 * deg) /
+        memoizedQuerySelector("#fov1").style.transform = `rotate(${(-1 * hDeg) /
           2}deg)`;
-        memoizedQuerySelector("#fov2").style.transform = `rotate(${deg /
+        memoizedQuerySelector("#fov2").style.transform = `rotate(${hDeg /
           2}deg)`;
       })
     )
