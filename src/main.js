@@ -378,6 +378,9 @@ export function init() {
       ows.forEach(({ horizontalFoV, verticalFoV, distance }) => {
         const hDeg = (horizontalFoV * 360) / (2 * Math.PI);
         const vDeg = (verticalFoV * 360) / (2 * Math.PI);
+        memoizedQuerySelectorAll(".hfov").forEach(
+          el => (el.textContent = `${hDeg.toFixed(0)}°`)
+        );
         memoizedQuerySelectorAll(".fov").forEach(
           el =>
             (el.textContent = `H∢: ${hDeg.toFixed(0)}° V∢: ${vDeg.toFixed(0)}°`)
