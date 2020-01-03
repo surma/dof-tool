@@ -35,7 +35,7 @@ export default class ToggleSwitch extends HTMLElement {
           position: relative;
           overflow: hidden;
           height: 1em;
-          width: 2rem;
+          width: 2em;
           border-radius: 1em;
           background-color: var(--switch-background, red);
           margin: 0 0.3em;
